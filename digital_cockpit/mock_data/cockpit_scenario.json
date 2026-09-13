@@ -1,0 +1,103 @@
+{
+  "name": "Lan's first drive",
+  "description": "A scripted timeline for a novice teen driver: get in, accelerate, a lane-departure warning that clears, then a critical obstacle that triggers braking, and finally the hazard clearing. Each step has 't' = seconds from start.",
+  "steps": [
+    {
+      "t": 0.0,
+      "action": "set_driver",
+      "driver_name": "Lan (Teen)",
+      "theme": "guided",
+      "note": "V4 read ui_theme='guided' from V1 (novice) and configures the screen."
+    },
+    {
+      "t": 0.5,
+      "action": "telemetry",
+      "speed_kmh": 0.0,
+      "gear": "P",
+      "note": "Car on, parked."
+    },
+    {
+      "t": 1.0,
+      "action": "telemetry",
+      "speed_kmh": 8.0,
+      "gear": "D",
+      "note": "Shift to Drive, pulling away."
+    },
+    {
+      "t": 2.0,
+      "action": "telemetry",
+      "speed_kmh": 28.0,
+      "gear": "D"
+    },
+    {
+      "t": 3.0,
+      "action": "telemetry",
+      "speed_kmh": 45.0,
+      "gear": "D"
+    },
+    {
+      "t": 3.5,
+      "action": "alert",
+      "alert_id": "lane_departure",
+      "severity": "warning",
+      "message": "Drifting left - stay in lane",
+      "source": "perception",
+      "note": "V3 Perception detects lane drift; because Lan is a novice, warnings fire early."
+    },
+    {
+      "t": 5.0,
+      "action": "dismiss",
+      "alert_id": "lane_departure",
+      "note": "Driver corrected; hazard cleared."
+    },
+    {
+      "t": 5.5,
+      "action": "telemetry",
+      "speed_kmh": 52.0,
+      "gear": "D"
+    },
+    {
+      "t": 6.5,
+      "action": "alert",
+      "alert_id": "collision_front",
+      "severity": "critical",
+      "message": "Obstacle ahead - brake now!",
+      "source": "safety_kernel",
+      "note": "V4 Safety Kernel: obstacle within the novice's (earlier) warning threshold."
+    },
+    {
+      "t": 7.0,
+      "action": "telemetry",
+      "speed_kmh": 30.0,
+      "gear": "D",
+      "note": "Braking."
+    },
+    {
+      "t": 7.5,
+      "action": "telemetry",
+      "speed_kmh": 10.0,
+      "gear": "D"
+    },
+    {
+      "t": 8.0,
+      "action": "telemetry",
+      "speed_kmh": 0.0,
+      "gear": "D",
+      "note": "Stopped safely."
+    },
+    {
+      "t": 8.5,
+      "action": "dismiss",
+      "alert_id": "collision_front",
+      "note": "Obstacle gone; hazard cleared."
+    },
+    {
+      "t": 9.0,
+      "action": "alert",
+      "alert_id": "eco_tip",
+      "severity": "info",
+      "message": "Smooth stop - eco score +5",
+      "source": "cockpit"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+[
+  {
+    "driver_id": "driver_001",
+    "name": "Ong Minh (Dad)",
+    "experience": "experienced",
+    "preferences": {
+      "seat_position": 80,
+      "climate_temperature": 23.5,
+      "mirror_angle": 45,
+      "ui_theme": "minimal",
+      "driving_profile": "sport",
+      "warning_sensitivity": "low"
+    }
+  },
+  {
+    "driver_id": "driver_002",
+    "name": "Ba Huong (Mom)",
+    "experience": "intermediate",
+    "preferences": {
+      "seat_position": 55,
+      "climate_temperature": 25.0,
+      "mirror_angle": 60,
+      "ui_theme": "guided",
+      "driving_profile": "comfort",
+      "warning_sensitivity": "medium"
+    }
+  },
+  {
+    "driver_id": "driver_003",
+    "name": "Lan (Teen, new license)",
+    "experience": "novice",
+    "preferences": {
+      "seat_position": 40,
+      "climate_temperature": 22.0,
+      "mirror_angle": 70,
+      "ui_theme": "guided",
+      "driving_profile": "eco",
+      "warning_sensitivity": "low"
+    }
+  },
+  {
+    "driver_id": "driver_004",
+    "name": "Chi Thao (Careful driver)",
+    "experience": "experienced",
+    "preferences": {
+      "seat_position": 60,
+      "climate_temperature": 24.0,
+      "mirror_angle": 50,
+      "ui_theme": "minimal",
+      "driving_profile": "comfort",
+      "warning_sensitivity": "high"
+    }
+  },
+  {
+    "driver_id": "driver_005",
+    "name": "Nam (Novice, safety-conscious)",
+    "experience": "novice",
+    "preferences": {
+      "seat_position": 45,
+      "climate_temperature": 21.0,
+      "mirror_angle": 65,
+      "ui_theme": "guided",
+      "driving_profile": "comfort",
+      "warning_sensitivity": "high"
+    }
+  }
+]

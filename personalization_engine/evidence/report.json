@@ -1,0 +1,218 @@
+{
+  "reasoning_backend": "deterministic-fallback",
+  "latency": {
+    "threshold_compute": {
+      "p50_ms": 0.045,
+      "p95_ms": 0.058,
+      "mean_ms": 0.046,
+      "n": 500
+    },
+    "explanation_fallback": {
+      "p50_ms": 0.004,
+      "p95_ms": 0.004,
+      "mean_ms": 0.004,
+      "n": 300
+    },
+    "api_roundtrip_3calls": {
+      "p50_ms": 4.71,
+      "p95_ms": 6.333,
+      "mean_ms": 4.954,
+      "n": 200
+    },
+    "note": "Explanation runs ASYNC, off V4's <=100ms Fast Path."
+  },
+  "personalization": {
+    "global_default": 0.7,
+    "drivers": [
+      {
+        "driver": "calm_driver",
+        "normal_perclos": 0.245,
+        "final_state": "PERSONALIZED",
+        "final_threshold": 0.325,
+        "global_default": 0.7,
+        "delta_vs_global_pct": -53.6,
+        "safety_floor_hit": false,
+        "trail": [
+          {
+            "trip": 1,
+            "state": "COLD_START",
+            "threshold": 0.7,
+            "confidence": 0.2,
+            "used_global": true,
+            "floored": false
+          },
+          {
+            "trip": 2,
+            "state": "WARMING",
+            "threshold": 0.481,
+            "confidence": 0.4,
+            "used_global": false,
+            "floored": false
+          },
+          {
+            "trip": 3,
+            "state": "PERSONALIZED",
+            "threshold": 0.324,
+            "confidence": 0.6,
+            "used_global": false,
+            "floored": false
+          },
+          {
+            "trip": 4,
+            "state": "PERSONALIZED",
+            "threshold": 0.325,
+            "confidence": 0.8,
+            "used_global": false,
+            "floored": false
+          }
+        ]
+      },
+      {
+        "driver": "average_driver",
+        "normal_perclos": 0.445,
+        "final_state": "PERSONALIZED",
+        "final_threshold": 0.494,
+        "global_default": 0.7,
+        "delta_vs_global_pct": -29.4,
+        "safety_floor_hit": false,
+        "trail": [
+          {
+            "trip": 1,
+            "state": "COLD_START",
+            "threshold": 0.7,
+            "confidence": 0.2,
+            "used_global": true,
+            "floored": false
+          },
+          {
+            "trip": 2,
+            "state": "WARMING",
+            "threshold": 0.581,
+            "confidence": 0.4,
+            "used_global": false,
+            "floored": false
+          },
+          {
+            "trip": 3,
+            "state": "PERSONALIZED",
+            "threshold": 0.496,
+            "confidence": 0.6,
+            "used_global": false,
+            "floored": false
+          },
+          {
+            "trip": 4,
+            "state": "PERSONALIZED",
+            "threshold": 0.494,
+            "confidence": 0.8,
+            "used_global": false,
+            "floored": false
+          }
+        ]
+      },
+      {
+        "driver": "drowsy_prone",
+        "normal_perclos": 0.663,
+        "final_state": "PERSONALIZED",
+        "final_threshold": 0.687,
+        "global_default": 0.7,
+        "delta_vs_global_pct": -1.9,
+        "safety_floor_hit": false,
+        "trail": [
+          {
+            "trip": 1,
+            "state": "COLD_START",
+            "threshold": 0.7,
+            "confidence": 0.2,
+            "used_global": true,
+            "floored": false
+          },
+          {
+            "trip": 2,
+            "state": "WARMING",
+            "threshold": 0.681,
+            "confidence": 0.4,
+            "used_global": false,
+            "floored": false
+          },
+          {
+            "trip": 3,
+            "state": "PERSONALIZED",
+            "threshold": 0.687,
+            "confidence": 0.6,
+            "used_global": false,
+            "floored": false
+          },
+          {
+            "trip": 4,
+            "state": "PERSONALIZED",
+            "threshold": 0.687,
+            "confidence": 0.8,
+            "used_global": false,
+            "floored": false
+          }
+        ]
+      },
+      {
+        "driver": "extreme_case",
+        "normal_perclos": 0.883,
+        "final_state": "PERSONALIZED",
+        "final_threshold": 0.85,
+        "global_default": 0.7,
+        "delta_vs_global_pct": 21.4,
+        "safety_floor_hit": true,
+        "trail": [
+          {
+            "trip": 1,
+            "state": "COLD_START",
+            "threshold": 0.7,
+            "confidence": 0.2,
+            "used_global": true,
+            "floored": false
+          },
+          {
+            "trip": 2,
+            "state": "WARMING",
+            "threshold": 0.791,
+            "confidence": 0.4,
+            "used_global": false,
+            "floored": false
+          },
+          {
+            "trip": 3,
+            "state": "PERSONALIZED",
+            "threshold": 0.85,
+            "confidence": 0.6,
+            "used_global": false,
+            "floored": true
+          },
+          {
+            "trip": 4,
+            "state": "PERSONALIZED",
+            "threshold": 0.85,
+            "confidence": 0.8,
+            "used_global": false,
+            "floored": true
+          }
+        ]
+      }
+    ],
+    "claim": "Each driver's threshold moves toward their own baseline (calm drivers get earlier warnings); an extreme baseline is capped by the V4 safety floor (floored=True), so V1 can never suggest warning dangerously late."
+  },
+  "safety": {
+    "hallucination_trials": 200,
+    "hallucination_rejected": 200,
+    "hallucination_rejection_rate_pct": 100.0,
+    "fabricated_number_leaked": 0,
+    "empty_responses": 0,
+    "grounded_llm_accepted": 200,
+    "grounded_llm_accept_rate_pct": 100.0,
+    "claim": "A fabricated safety number ('9.99') is rejected 100% of the time and never reaches the driver; grounded rephrasings are accepted."
+  },
+  "determinism": {
+    "runs": 50,
+    "distinct_outputs": 1,
+    "deterministic": true,
+    "claim": "The fallback path is byte-for-byte reproducible across runs."
+  }
+}

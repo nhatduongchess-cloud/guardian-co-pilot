@@ -1,0 +1,26 @@
+# =============================================================================
+# Vertical 1 — Personalization Engine · dependencies
+# =============================================================================
+# Install (from personalization_engine/):
+#     pip install -r requirements.txt
+#
+# Everything below is pure-Python / prebuilt wheels — no compiler needed.
+# The service runs fully on these; the LLM is OPTIONAL (see the bottom).
+# -----------------------------------------------------------------------------
+
+fastapi>=0.110          # web framework (the REST API surface)
+uvicorn[standard]>=0.29 # ASGI server that runs the app
+pydantic>=2.6           # data models + validation (schemas §3.1-§3.4)
+httpx>=0.27             # cross-vertical client + in-memory TestClient
+numpy>=1.26             # in-process cosine similarity for memory retrieval
+
+# -- development / evaluation --------------------------------------------------
+pytest>=8.0             # test suite (run: pytest)
+
+# -- OPTIONAL: the real Phi-3-mini reasoning backend --------------------------
+# Uncomment + install to switch the reasoning engine from deterministic
+# Vietnamese templates to real Phi-3-mini generation (see reasoning/phi3_runtime.py
+# and README §"Bật Phi-3 thật"). The service runs perfectly WITHOUT this.
+#
+# onnxruntime-genai>=0.4.0          # CPU build
+# onnxruntime-genai-directml>=0.4.0 # Windows GPU build (alternative)

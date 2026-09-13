@@ -1,0 +1,413 @@
+<title>Vertical 1 — Bằng chứng vận hành</title>
+<style>
+  :root {
+    /* instrument-cluster palette — charcoal ground with a slight blue bias,
+       a teal HUD accent, and separate semantic safety colors */
+    --bg: #0d1015;
+    --bg-grid: #12161d;
+    --panel: #161b23;
+    --panel-2: #1b212b;
+    --edge: #262e3a;
+    --ink: #e9eef4;
+    --muted: #8b98a9;
+    --faint: #5c6675;
+    --accent: #35d0c0;      /* HUD teal */
+    --accent-dim: #1d6f68;
+    --good: #46c98b;
+    --warn: #e6a93a;
+    --crit: #e85d4c;
+    --c-calm: #46c98b;
+    --c-avg: #35d0c0;
+    --c-drowsy: #e6a93a;
+    --c-extreme: #e85d4c;
+    --shadow: 0 1px 0 rgba(255,255,255,.03), 0 12px 30px -18px rgba(0,0,0,.7);
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", "Consolas", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #eef1ee; --bg-grid: #e6eae6; --panel: #ffffff; --panel-2: #f5f7f6;
+      --edge: #d9dfe0; --ink: #182029; --muted: #5a6672; --faint: #97a1ab;
+      --accent: #159a8c; --accent-dim: #9ad9d1; --good: #1f9c67; --warn: #b5791a;
+      --crit: #cf4636; --c-calm: #1f9c67; --c-avg: #159a8c; --c-drowsy: #b5791a;
+      --c-extreme: #cf4636;
+      --shadow: 0 1px 0 rgba(0,0,0,.02), 0 14px 34px -22px rgba(20,40,60,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1015; --bg-grid: #12161d; --panel: #161b23; --panel-2: #1b212b;
+    --edge: #262e3a; --ink: #e9eef4; --muted: #8b98a9; --faint: #5c6675;
+    --accent: #35d0c0; --accent-dim: #1d6f68; --good: #46c98b; --warn: #e6a93a;
+    --crit: #e85d4c; --c-calm: #46c98b; --c-avg: #35d0c0; --c-drowsy: #e6a93a;
+    --c-extreme: #e85d4c;
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1ee; --bg-grid: #e6eae6; --panel: #ffffff; --panel-2: #f5f7f6;
+    --edge: #d9dfe0; --ink: #182029; --muted: #5a6672; --faint: #97a1ab;
+    --accent: #159a8c; --accent-dim: #9ad9d1; --good: #1f9c67; --warn: #b5791a;
+    --crit: #cf4636; --c-calm: #1f9c67; --c-avg: #159a8c; --c-drowsy: #b5791a;
+    --c-extreme: #cf4636;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(var(--bg-grid) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 20px 56px; }
+
+  /* ---- header ---- */
+  header { display: flex; flex-wrap: wrap; align-items: flex-end;
+    justify-content: space-between; gap: 16px 24px; margin-bottom: 26px; }
+  .eyebrow { font-family: var(--mono); font-size: 11.5px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  h1 { font-size: clamp(26px, 4.4vw, 40px); line-height: 1.05; margin: 0;
+    letter-spacing: -.02em; font-weight: 680; text-wrap: balance; }
+  .sub { color: var(--muted); margin: 10px 0 0; max-width: 52ch; font-size: 14.5px; }
+  .status { display: flex; align-items: center; gap: 9px; font-family: var(--mono);
+    font-size: 12.5px; padding: 8px 13px; border: 1px solid var(--edge);
+    border-radius: 999px; background: var(--panel); white-space: nowrap; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--good) 22%, transparent); }
+
+  /* ---- constraint chips ---- */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 26px; }
+  .chip { font-family: var(--mono); font-size: 11.5px; letter-spacing: .02em;
+    color: var(--muted); border: 1px solid var(--edge); background: var(--panel);
+    padding: 6px 11px; border-radius: 7px; }
+  .chip b { color: var(--ink); font-weight: 600; }
+
+  /* ---- KPI row ---- */
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+    margin-bottom: 14px; }
+  .kpi { background: var(--panel); border: 1px solid var(--edge); border-radius: 12px;
+    padding: 15px 15px 14px; box-shadow: var(--shadow); position: relative;
+    overflow: hidden; }
+  .kpi::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background: var(--accent); opacity:.85; }
+  .kpi.good::before { background: var(--good); }
+  .kpi .k-label { font-size: 11.5px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: .07em; margin-bottom: 8px; }
+  .kpi .k-val { font-family: var(--mono); font-size: 27px; font-weight: 600;
+    letter-spacing: -.01em; font-variant-numeric: tabular-nums; line-height: 1; }
+  .kpi .k-val small { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .kpi .k-sub { font-size: 11.5px; color: var(--faint); margin-top: 6px;
+    font-family: var(--mono); }
+
+  /* ---- panels grid ---- */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .panel { background: var(--panel); border: 1px solid var(--edge);
+    border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
+  .panel.span2 { grid-column: 1 / -1; }
+  .p-head { display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; margin-bottom: 4px; }
+  .p-title { font-size: 15px; font-weight: 650; letter-spacing: -.01em; margin: 0; }
+  .p-tag { font-family: var(--mono); font-size: 11px; color: var(--faint);
+    text-transform: uppercase; letter-spacing: .1em; }
+  .p-note { color: var(--muted); font-size: 13px; margin: 6px 0 16px; max-width: 68ch; }
+
+  /* ---- latency meters ---- */
+  .lat-row { display: grid; grid-template-columns: 210px 1fr 92px; align-items: center;
+    gap: 12px; padding: 9px 0; border-top: 1px solid var(--edge); }
+  .lat-row:first-of-type { border-top: none; }
+  .lat-name { font-size: 13px; }
+  .lat-name span { display:block; color: var(--faint); font-size: 11px;
+    font-family: var(--mono); }
+  .meter { position: relative; height: 8px; border-radius: 5px;
+    background: var(--panel-2); border: 1px solid var(--edge); overflow: visible; }
+  .meter > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px;
+    background: linear-gradient(90deg, var(--accent-dim), var(--accent)); }
+  .budget { position: absolute; top: -5px; bottom: -5px; width: 2px;
+    background: var(--crit); }
+  .budget::after { content: "100ms"; position: absolute; top: -16px; right: -2px;
+    font-family: var(--mono); font-size: 9.5px; color: var(--crit);
+    letter-spacing: .04em; }
+  .lat-val { font-family: var(--mono); font-size: 15px; text-align: right;
+    font-variant-numeric: tabular-nums; }
+  .lat-val span { display:block; color: var(--faint); font-size: 10.5px; }
+
+  /* ---- chart ---- */
+  .chart-wrap { overflow-x: auto; }
+  svg.chart { width: 100%; min-width: 520px; height: auto; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px 20px; margin-top: 14px; }
+  .lg { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .lg i { width: 22px; height: 3px; border-radius: 2px; display: inline-block; }
+  .lg b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---- cohort table ---- */
+  table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 13px; }
+  th, td { text-align: right; padding: 9px 10px; border-top: 1px solid var(--edge); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); font-weight: 600; border-top: none; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .pill { font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    border: 1px solid; display: inline-block; }
+  .pill.ok { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent);
+    background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .pill.cap { color: var(--crit); border-color: color-mix(in srgb, var(--crit) 45%, transparent);
+    background: color-mix(in srgb, var(--crit) 12%, transparent); }
+
+  /* ---- safety gauge + determinism ---- */
+  .gauge-row { display: flex; align-items: center; gap: 22px; }
+  .ring { flex-shrink: 0; }
+  .ring text.big { font-family: var(--mono); font-weight: 650; fill: var(--good); }
+  .safety-stats { display: grid; gap: 9px; }
+  .ss { display: flex; align-items: baseline; gap: 10px; }
+  .ss b { font-family: var(--mono); font-size: 19px; font-variant-numeric: tabular-nums;
+    min-width: 42px; }
+  .ss span { color: var(--muted); font-size: 13px; }
+  .big-fact { font-family: var(--mono); font-size: 40px; font-weight: 650;
+    letter-spacing: -.02em; line-height: 1; }
+  .big-fact small { font-size: 15px; color: var(--muted); }
+
+  /* ---- footer ---- */
+  footer { margin-top: 20px; border-top: 1px solid var(--edge); padding-top: 20px;
+    display: grid; gap: 14px; }
+  .repro { background: var(--panel); border: 1px solid var(--edge); border-radius: 12px;
+    padding: 16px 18px; }
+  .repro h3 { margin: 0 0 10px; font-size: 12.5px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+  pre { margin: 0; overflow-x: auto; background: var(--bg-grid); border: 1px solid var(--edge);
+    border-radius: 8px; padding: 12px 14px; }
+  code { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+  .fineprint { color: var(--faint); font-size: 12px; font-family: var(--mono); }
+  .fineprint b { color: var(--accent); }
+
+  @media (max-width: 860px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid { grid-template-columns: 1fr; }
+    .lat-row { grid-template-columns: 150px 1fr 80px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .kpi, .panel { animation: rise .5s cubic-bezier(.2,.7,.3,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Guardian AI OS · Vertical 1 · Personalization Engine</p>
+      <h1>Bằng chứng vận hành</h1>
+      <p class="sub">Số liệu thật, tái tạo được, sinh trực tiếp từ mã nguồn —
+        đo độ trễ, khả năng cá nhân hoá, an toàn chống bịa, và tính tất định.</p>
+    </div>
+    <div class="status"><span class="dot"></span> 154/154 TESTS · REPRODUCIBLE</div>
+  </header>
+
+  <div class="chips">
+    <div class="chip"><b>Advisory-only</b> · không ra lệnh xe</div>
+    <div class="chip"><b>≥3 chuyến</b> mới cá nhân hoá</div>
+    <div class="chip"><b>Grounded</b> + fallback</div>
+    <div class="chip"><b>Edge</b> · không cần phần cứng mới</div>
+  </div>
+
+  <section class="kpis" aria-label="Chỉ số tổng quan">
+    <div class="kpi good">
+      <div class="k-label">Kiểm thử</div>
+      <div class="k-val">154<small>/154</small></div>
+      <div class="k-sub">pytest · pass</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Độ phủ code</div>
+      <div class="k-val">78<small>%</small></div>
+      <div class="k-sub">1144 dòng lệnh</div>
+    </div>
+    <div class="kpi good">
+      <div class="k-label">Eval giải thích</div>
+      <div class="k-val">12<small>/12</small></div>
+      <div class="k-sub">rubric · 100%</div>
+    </div>
+    <div class="kpi good">
+      <div class="k-label">Rò rỉ bịa đặt</div>
+      <div class="k-val">0<small>/200</small></div>
+      <div class="k-sub">grounding gate</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">API p50</div>
+      <div class="k-val">4.7<small>ms</small></div>
+      <div class="k-sub">3 lời gọi/chuỗi</div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <!-- LATENCY -->
+    <section class="panel">
+      <div class="p-head"><h2 class="p-title">Độ trễ — khả năng chạy edge</h2>
+        <span class="p-tag">§8 · Fast Path ≤100ms</span></div>
+      <p class="p-note">Mọi tác vụ đều nằm sâu dưới ngân sách 100ms của V4. Giải thích
+        chạy <b>bất đồng bộ</b>, ngoài Fast Path, nên không bao giờ làm chậm quyết định an toàn.</p>
+      <div id="lat"></div>
+    </section>
+
+    <!-- SAFETY -->
+    <section class="panel">
+      <div class="p-head"><h2 class="p-title">An toàn — chặn hallucinate</h2>
+        <span class="p-tag">Ràng buộc #3</span></div>
+      <p class="p-note">Ép LLM bịa một con số an toàn giả (“PERCLOS 9.99 → dừng xe”)
+        200 lần. Confidence gate chặn 100%, không con số bịa nào tới tài xế.</p>
+      <div class="gauge-row">
+        <svg class="ring" width="118" height="118" viewBox="0 0 118 118" aria-hidden="true">
+          <circle cx="59" cy="59" r="50" fill="none" stroke="var(--edge)" stroke-width="10"/>
+          <circle cx="59" cy="59" r="50" fill="none" stroke="var(--good)" stroke-width="10"
+            stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="0"
+            transform="rotate(-90 59 59)"/>
+          <text class="big" x="59" y="58" text-anchor="middle" font-size="25">100%</text>
+          <text x="59" y="76" text-anchor="middle" font-size="10" fill="var(--muted)">bị chặn</text>
+        </svg>
+        <div class="safety-stats">
+          <div class="ss"><b>200</b><span>lần thử bịa số liệu</span></div>
+          <div class="ss"><b style="color:var(--good)">0</b><span>rò rỉ tới tài xế</span></div>
+          <div class="ss"><b style="color:var(--good)">0</b><span>câu trả lời rỗng</span></div>
+          <div class="ss"><b style="color:var(--accent)">100%</b><span>câu grounded được chấp nhận</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PERSONALIZATION (hero) -->
+    <section class="panel span2">
+      <div class="p-head"><h2 class="p-title">Cá nhân hoá — ngưỡng thích nghi theo từng tài xế</h2>
+        <span class="p-tag">§2.2 · state machine</span></div>
+      <p class="p-note">Bốn tài xế mô phỏng, mỗi người một mức mệt “bình thường” khác nhau.
+        Tất cả khởi đầu ở ngưỡng mặc định <b>0.70</b> (COLD_START), rồi phân kỳ về baseline
+        riêng khi lên PERSONALIZED. Tài xế tỉnh táo được cảnh báo <b>sớm hơn 53%</b>; ca cực đoan
+        bị <b>safety floor (0.85)</b> chặn — không bao giờ được cảnh báo trễ nguy hiểm.</p>
+      <div class="chart-wrap"><svg class="chart" viewBox="0 0 660 320" role="img"
+        aria-label="Quỹ đạo ngưỡng mệt của 4 tài xế qua 4 chuyến"></svg></div>
+      <div class="legend" id="legend"></div>
+
+      <table>
+        <thead><tr>
+          <th>Tài xế</th><th>PERCLOS nền</th><th>Ngưỡng cuối</th>
+          <th>So với mặc định</th><th>Trạng thái</th><th>Safety floor</th>
+        </tr></thead>
+        <tbody id="cohort"></tbody>
+      </table>
+    </section>
+
+    <!-- DETERMINISM -->
+    <section class="panel">
+      <div class="p-head"><h2 class="p-title">Tất định — tái tạo được</h2>
+        <span class="p-tag">reproducible</span></div>
+      <p class="p-note">Cùng một đầu vào, chạy 50 lần, đường fallback cho ra output
+        giống hệt từng ký tự — điều bắt buộc với một sản phẩm an toàn.</p>
+      <div class="big-fact" style="color:var(--good)">50 → 1<small> output duy nhất</small></div>
+    </section>
+
+    <!-- WHAT'S MEASURED -->
+    <section class="panel">
+      <div class="p-head"><h2 class="p-title">Cách tự kiểm chứng</h2>
+        <span class="p-tag">live</span></div>
+      <p class="p-note">Mọi số trên trang này sinh ra từ hai lệnh, chạy được ngay
+        trước mặt BGK — không phải ảnh chụp tĩnh.</p>
+      <div class="repro" style="box-shadow:none;padding:0;border:none">
+        <pre><code>python -m evidence.generate_evidence
+python -m eval.run_eval
+pytest</code></pre>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="repro">
+      <h3>Kịch bản demo trực tiếp</h3>
+      <pre><code>python -m mock_data.simulate_trips   # xem 1 tài xế đi từ COLD_START → PERSONALIZED</code></pre>
+    </div>
+    <p class="fineprint"><b>Nhắc lại ranh giới:</b> V1 chỉ TƯ VẤN. Ngưỡng ở đây là số
+      gợi ý; mọi lệnh an toàn do V4 Safety Kernel (deterministic) quyết định và luôn tự kẹp lại theo floor của chính V4.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  // -------- real data (from evidence/report.json) --------
+  const latency = [
+    { name: "Tính ngưỡng cá nhân", tag: "state machine", p50: 0.045, p95: 0.058 },
+    { name: "Sinh giải thích (fallback)", tag: "reasoning", p50: 0.004, p95: 0.004 },
+    { name: "API round-trip · 3 lời gọi", tag: "ingest+thr+explain", p50: 4.71, p95: 6.333 },
+  ];
+  const BUDGET = 100; // ms
+  const drivers = [
+    { key: "calm",    label: "Tỉnh táo",      normal: 0.245, trail: [0.70, 0.481, 0.324, 0.325], delta: -53.6, floor: false, color: "var(--c-calm)" },
+    { key: "avg",     label: "Trung bình",    normal: 0.445, trail: [0.70, 0.581, 0.496, 0.494], delta: -29.4, floor: false, color: "var(--c-avg)" },
+    { key: "drowsy",  label: "Hay buồn ngủ",  normal: 0.663, trail: [0.70, 0.681, 0.687, 0.687], delta: -1.9,  floor: false, color: "var(--c-drowsy)" },
+    { key: "extreme", label: "Cực đoan",      normal: 0.883, trail: [0.70, 0.791, 0.850, 0.850], delta: 21.4,  floor: true,  color: "var(--c-extreme)" },
+  ];
+  const GLOBAL = 0.70, FLOOR = 0.85;
+
+  // -------- latency meters (log scale 0.001 → 100 ms) --------
+  const L0 = Math.log10(0.001), L1 = Math.log10(BUDGET);
+  const pos = v => (Math.log10(Math.max(v, 0.001)) - L0) / (L1 - L0) * 100;
+  document.getElementById("lat").innerHTML = latency.map(m => `
+    <div class="lat-row">
+      <div class="lat-name">${m.name}<span>${m.tag}</span></div>
+      <div class="meter"><i style="width:${pos(m.p50).toFixed(2)}%"></i>
+        <div class="budget" style="left:100%"></div></div>
+      <div class="lat-val">${m.p50.toFixed(3)} ms<span>p95 ${m.p95.toFixed(2)}</span></div>
+    </div>`).join("");
+
+  // -------- personalization line chart --------
+  const W = 660, H = 320, mL = 52, mR = 18, mT = 20, mB = 52;
+  const vMin = 0.15, vMax = 0.95;
+  const x = i => mL + (i / 3) * (W - mL - mR);
+  const y = v => mT + (vMax - v) / (vMax - vMin) * (H - mT - mB);
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.querySelector("svg.chart");
+  const add = (tag, at) => { const e = document.createElementNS(NS, tag);
+    for (const k in at) e.setAttribute(k, at[k]); return svg.appendChild(e); };
+
+  // horizontal gridlines + y labels
+  [0.2, 0.4, 0.6, 0.8].forEach(v => {
+    add("line", { x1: mL, x2: W - mR, y1: y(v), y2: y(v), stroke: "var(--edge)", "stroke-width": 1 });
+    const t = add("text", { x: mL - 10, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: "var(--faint)" });
+    t.textContent = v.toFixed(1); t.style.fontFamily = "var(--mono)";
+  });
+  // reference lines: global default + safety floor
+  add("line", { x1: mL, x2: W - mR, y1: y(GLOBAL), y2: y(GLOBAL), stroke: "var(--muted)",
+    "stroke-width": 1.5, "stroke-dasharray": "3 4" });
+  let gl = add("text", { x: W - mR, y: y(GLOBAL) - 6, "text-anchor": "end", "font-size": 10.5, fill: "var(--muted)" });
+  gl.textContent = "mặc định 0.70"; gl.style.fontFamily = "var(--mono)";
+  add("line", { x1: mL, x2: W - mR, y1: y(FLOOR), y2: y(FLOOR), stroke: "var(--crit)",
+    "stroke-width": 1.5, "stroke-dasharray": "2 4" });
+  let fl = add("text", { x: W - mR, y: y(FLOOR) - 6, "text-anchor": "end", "font-size": 10.5, fill: "var(--crit)" });
+  fl.textContent = "safety floor 0.85"; fl.style.fontFamily = "var(--mono)";
+
+  // x-axis phase labels
+  const phases = ["COLD_START", "WARMING", "PERSONALIZED", "PERSONALIZED"];
+  ["Chuyến 1", "Chuyến 2", "Chuyến 3", "Chuyến 4"].forEach((lb, i) => {
+    let a = add("text", { x: x(i), y: H - mB + 20, "text-anchor": "middle", "font-size": 11, fill: "var(--muted)" });
+    a.textContent = lb;
+    let b = add("text", { x: x(i), y: H - mB + 34, "text-anchor": "middle", "font-size": 8.5, fill: "var(--faint)" });
+    b.textContent = phases[i]; b.style.fontFamily = "var(--mono)"; b.style.letterSpacing = ".04em";
+  });
+
+  // driver lines + endpoint dots
+  drivers.forEach(d => {
+    const pts = d.trail.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+    add("polyline", { points: pts, fill: "none", stroke: d.color, "stroke-width": 2.6,
+      "stroke-linejoin": "round", "stroke-linecap": "round" });
+    d.trail.forEach((v, i) => add("circle", { cx: x(i), cy: y(v), r: i === 3 ? 4 : 2.6,
+      fill: i === 3 ? d.color : "var(--panel)", stroke: d.color, "stroke-width": 1.8 }));
+  });
+
+  // legend
+  document.getElementById("legend").innerHTML = drivers.map(d =>
+    `<div class="lg"><i style="background:${d.color}"></i>${d.label}
+      <b style="color:${d.color}">${d.trail[3].toFixed(3)}</b></div>`).join("");
+
+  // cohort table
+  document.getElementById("cohort").innerHTML = drivers.map(d => `
+    <tr>
+      <td><span class="lg" style="gap:7px"><i style="width:14px;height:3px;border-radius:2px;background:${d.color}"></i>${d.label}</span></td>
+      <td class="num">${d.normal.toFixed(3)}</td>
+      <td class="num">${d.trail[3].toFixed(3)}</td>
+      <td class="num" style="color:${d.delta < 0 ? 'var(--good)' : 'var(--warn)'}">${d.delta > 0 ? '+' : ''}${d.delta}%</td>
+      <td><span class="pill ok">PERSONALIZED</span></td>
+      <td>${d.floor ? '<span class="pill cap">CHẠM 0.85</span>' : '<span style="color:var(--faint);font-family:var(--mono);font-size:11px">—</span>'}</td>
+    </tr>`).join("");
+})();
+</script>

@@ -1,0 +1,74 @@
+# ---------------------------------------------------------------------------
+# Guardian Co-Pilot — what stays out of the repository
+#
+# This repo ships CODE. It does not redistribute anyone else's data, footage or
+# model weights: not the private trip dataset this project was first built
+# against, not the public datasets the open-data evaluation streams, and not the
+# pretrained checkpoints those pipelines download on first use.
+# ---------------------------------------------------------------------------
+
+# --- Other people's data -----------------------------------------------------
+# The trip dataset (cabin + road footage) is not ours to publish. Point
+# GUARDIAN_DATA_ROOT at your own copy instead.
+guardian_data/
+data/raw/
+
+# The competition organiser's Team Kit is their code, not ours to republish.
+# The modules that read the private trip dataset import from it; see the
+# README for which parts of this repo run standalone and which do not.
+starterkit/
+
+# Everything derived from that footage: cached perception, extracted features,
+# rendered demo video, and the prediction CSVs built from it.
+artifacts/
+predictions/
+predictions_selfcheck/
+
+# Rendered demo video is derived from that same private footage.
+*.mp4
+*.avi
+
+# --- Model weights (downloaded on first use, not vendored) -------------------
+*.pt
+*.pth
+*.onnx
+*.task
+*.tflite
+*.joblib
+
+# --- Local caches ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Hugging Face / torch caches if anyone points them at the tree
+.cache/
+hf_cache/
+
+# --- Environments ------------------------------------------------------------
+.venv/
+venv/
+env/
+*.egg-info/
+
+# --- Editor / OS -------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Scratch from exploration sessions ---------------------------------------
+probe_*
+patch_*.py
+scan.py
+check_staged.py
+fix2.py
+commitmsg.txt
+*.log
+tmp/

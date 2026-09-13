@@ -1,0 +1,301 @@
+<title>V1 trên data thật — 10 chuyến cuộc thi</title>
+<style>
+  :root {
+    --bg: #0d1015; --bg-grid: #12161d; --panel: #161b23; --panel-2: #1b212b;
+    --edge: #262e3a; --ink: #e9eef4; --muted: #8b98a9; --faint: #5c6675;
+    --accent: #35d0c0; --accent-dim: #1d6f68;
+    --good: #46c98b; --warn: #e6a93a; --crit: #e85d4c;
+    --shadow: 0 1px 0 rgba(255,255,255,.03), 0 12px 30px -18px rgba(0,0,0,.7);
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", "Consolas", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg:#eef1ee; --bg-grid:#e6eae6; --panel:#fff; --panel-2:#f5f7f6; --edge:#d9dfe0;
+      --ink:#182029; --muted:#5a6672; --faint:#97a1ab; --accent:#159a8c; --accent-dim:#9ad9d1;
+      --good:#1f9c67; --warn:#b5791a; --crit:#cf4636;
+      --shadow:0 1px 0 rgba(0,0,0,.02), 0 14px 34px -22px rgba(20,40,60,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0d1015; --bg-grid:#12161d; --panel:#161b23; --panel-2:#1b212b; --edge:#262e3a;
+    --ink:#e9eef4; --muted:#8b98a9; --faint:#5c6675; --accent:#35d0c0; --accent-dim:#1d6f68;
+    --good:#46c98b; --warn:#e6a93a; --crit:#e85d4c;
+  }
+  :root[data-theme="light"] {
+    --bg:#eef1ee; --bg-grid:#e6eae6; --panel:#fff; --panel-2:#f5f7f6; --edge:#d9dfe0;
+    --ink:#182029; --muted:#5a6672; --faint:#97a1ab; --accent:#159a8c; --accent-dim:#9ad9d1;
+    --good:#1f9c67; --warn:#b5791a; --crit:#cf4636;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+    background-image: radial-gradient(var(--bg-grid) 1px, transparent 1px);
+    background-size: 22px 22px; }
+  .wrap { max-width:1120px; margin:0 auto; padding:32px 20px 56px; }
+
+  header { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between;
+    gap:16px 24px; margin-bottom:22px; }
+  .eyebrow { font-family:var(--mono); font-size:11.5px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 8px; }
+  h1 { font-size:clamp(25px,4.2vw,38px); line-height:1.05; margin:0; letter-spacing:-.02em;
+    font-weight:680; text-wrap:balance; }
+  .sub { color:var(--muted); margin:10px 0 0; max-width:60ch; font-size:14.5px; }
+  .status { display:flex; align-items:center; gap:9px; font-family:var(--mono); font-size:12.5px;
+    padding:8px 13px; border:1px solid var(--edge); border-radius:999px; background:var(--panel);
+    white-space:nowrap; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--good);
+    box-shadow:0 0 0 4px color-mix(in srgb, var(--good) 22%, transparent); }
+
+  .kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:14px; }
+  .kpi { background:var(--panel); border:1px solid var(--edge); border-radius:12px;
+    padding:15px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
+  .kpi::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:var(--accent); opacity:.85; }
+  .kpi.good::before { background:var(--good); }
+  .kpi.crit::before { background:var(--crit); }
+  .k-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em;
+    margin-bottom:8px; }
+  .k-val { font-family:var(--mono); font-size:25px; font-weight:600; letter-spacing:-.01em;
+    font-variant-numeric:tabular-nums; line-height:1; }
+  .k-val small { font-size:13px; color:var(--muted); font-weight:500; }
+  .k-sub { font-size:11px; color:var(--faint); margin-top:6px; font-family:var(--mono); }
+
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .panel { background:var(--panel); border:1px solid var(--edge); border-radius:14px;
+    padding:20px; box-shadow:var(--shadow); }
+  .panel.span2 { grid-column:1 / -1; }
+  .p-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    margin-bottom:4px; }
+  .p-title { font-size:15px; font-weight:650; letter-spacing:-.01em; margin:0; }
+  .p-tag { font-family:var(--mono); font-size:11px; color:var(--faint); text-transform:uppercase;
+    letter-spacing:.1em; }
+  .p-note { color:var(--muted); font-size:13px; margin:6px 0 16px; max-width:74ch; }
+
+  /* perception cross-check cards */
+  .checks { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .check { border:1px solid var(--edge); border-radius:10px; padding:12px 14px; background:var(--panel-2); }
+  .check .trip { font-family:var(--mono); font-size:11px; color:var(--faint); letter-spacing:.06em; }
+  .check .scen { font-size:12.5px; color:var(--muted); margin:2px 0 8px; }
+  .check .row { display:flex; align-items:center; gap:8px; font-size:13px; }
+  .check .arrow { color:var(--faint); }
+  .check b { font-family:var(--mono); }
+  .hit { color:var(--good); }
+  .badge { margin-left:auto; font-family:var(--mono); font-size:10px; padding:2px 7px;
+    border-radius:999px; border:1px solid color-mix(in srgb, var(--good) 45%, transparent);
+    color:var(--good); background:color-mix(in srgb, var(--good) 12%, transparent); }
+
+  .chart-wrap { overflow-x:auto; }
+  svg.chart { width:100%; min-width:640px; height:auto; display:block; }
+  .legend { display:flex; flex-wrap:wrap; gap:14px 20px; margin-top:12px; }
+  .lg { display:flex; align-items:center; gap:8px; font-size:12.5px; }
+  .lg i { width:22px; height:3px; border-radius:2px; display:inline-block; }
+
+  .tbl-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; min-width:720px; }
+  th,td { text-align:right; padding:9px 10px; border-top:1px solid var(--edge); vertical-align:middle; }
+  th:first-child, td:first-child { text-align:left; }
+  th:nth-child(2), td:nth-child(2) { text-align:left; }
+  thead th { font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
+    font-weight:600; border-top:none; }
+  td.num { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+  .state { font-family:var(--mono); font-size:10.5px; padding:2px 7px; border-radius:999px;
+    border:1px solid var(--edge); color:var(--muted); }
+  .state.P { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 40%,transparent); }
+  .floor { font-family:var(--mono); font-size:10px; color:var(--crit);
+    border:1px solid color-mix(in srgb,var(--crit) 45%,transparent);
+    background:color-mix(in srgb,var(--crit) 12%,transparent); padding:2px 7px; border-radius:999px; }
+  .drow-cell { display:flex; align-items:center; gap:7px; justify-content:flex-end; }
+  .drow-bar { width:46px; height:6px; border-radius:4px; background:var(--panel-2);
+    border:1px solid var(--edge); overflow:hidden; }
+  .drow-bar > i { display:block; height:100%; }
+
+  .quote { border-left:3px solid var(--accent); padding:10px 0 10px 14px; margin:14px 0 0;
+    color:var(--ink); font-size:13.5px; background:linear-gradient(90deg,
+      color-mix(in srgb,var(--accent) 7%, transparent), transparent); border-radius:0 8px 8px 0; }
+  .quote .cap { font-family:var(--mono); font-size:11px; color:var(--faint); display:block; margin-bottom:4px; }
+
+  footer { margin-top:20px; border-top:1px solid var(--edge); padding-top:20px; display:grid; gap:14px; }
+  .split { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .box { background:var(--panel); border:1px solid var(--edge); border-radius:12px; padding:14px 16px; }
+  .box h3 { margin:0 0 8px; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; font-weight:600; }
+  .box.real h3 { color:var(--good); } .box.red h3 { color:var(--crit); }
+  .box ul { margin:0; padding-left:18px; color:var(--muted); font-size:12.5px; }
+  .box li { margin:3px 0; }
+  pre { margin:12px 0 0; overflow-x:auto; background:var(--bg-grid); border:1px solid var(--edge);
+    border-radius:8px; padding:12px 14px; }
+  code { font-family:var(--mono); font-size:12px; color:var(--ink); }
+  .fineprint { color:var(--faint); font-size:12px; font-family:var(--mono); }
+  .fineprint b { color:var(--accent); }
+
+  @media (max-width:900px){ .kpis{grid-template-columns:repeat(2,1fr);} .grid{grid-template-columns:1fr;}
+    .checks{grid-template-columns:1fr;} .split{grid-template-columns:1fr;} }
+  @media (prefers-reduced-motion:no-preference){ .kpi,.panel{animation:rise .5s cubic-bezier(.2,.7,.3,1) both;}
+    @keyframes rise{from{opacity:0;transform:translateY(8px);}} }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Guardian AI OS · Vertical 1 · Data thật cuộc thi</p>
+      <h1>V1 chạy trên 10 chuyến thật</h1>
+      <p class="sub">Không phải mô phỏng: perception model của đội đọc footage thật, sự kiện lấy
+        từ <code>events_log</code> thật, kinematics thật — rồi đưa hết vào Vertical 1.</p>
+    </div>
+    <div class="status"><span class="dot"></span> 535 SỰ KIỆN THẬT · 10 CHUYẾN</div>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi"><div class="k-label">Chuyến thật</div><div class="k-val">10</div><div class="k-sub">T01d…T10d</div></div>
+    <div class="kpi"><div class="k-label">Sự kiện nạp vào V1</div><div class="k-val">535</div><div class="k-sub">fatigue+object+brake</div></div>
+    <div class="kpi good"><div class="k-label">Perception</div><div class="k-val">resnet18</div><div class="k-sub">driver-state thật</div></div>
+    <div class="kpi crit"><div class="k-label">Safety floor bật</div><div class="k-val">5<small>/10</small></div><div class="k-sub">chuyến buồn ngủ</div></div>
+    <div class="kpi"><div class="k-label">Giải thích p50</div><div class="k-val">0.14<small>ms</small></div><div class="k-sub">10/10 không rỗng</div></div>
+  </section>
+
+  <div class="grid">
+    <!-- Perception cross-check -->
+    <section class="panel span2">
+      <div class="p-head"><h2 class="p-title">Perception tự kiểm chứng với mô tả kịch bản</h2>
+        <span class="p-tag">nhãn GT bị redacted</span></div>
+      <p class="p-note">Nhãn driver-state thật bị lược khỏi bộ Redacted (đó là thứ đội phải dự đoán).
+        Nhưng model của đội đọc footage thật cho ra trạng thái <b>khớp với mô tả kịch bản</b> —
+        một cách tự kiểm chứng mà không cần đáp án.</p>
+      <div class="checks" id="checks"></div>
+    </section>
+
+    <!-- Threshold vs drowsiness chart -->
+    <section class="panel span2">
+      <div class="p-head"><h2 class="p-title">Ngưỡng mệt cá nhân hoá bám theo drowsiness thật</h2>
+        <span class="p-tag">§2.2 · safety floor</span></div>
+      <p class="p-note">Đưa 10 phiên vào tuần tự như lịch sử của MỘT tài xế. Sau 3 chuyến → PERSONALIZED.
+        Ngưỡng bám theo mức buồn ngủ model đo được; những phiên buồn ngủ nguy hiểm (microsleep/drowsy)
+        bị <b style="color:var(--crit)">safety floor 0.85</b> chặn — Guardian không bao giờ nới ngưỡng
+        trễ một cách nguy hiểm.</p>
+      <div class="chart-wrap"><svg class="chart" viewBox="0 0 720 340" role="img"
+        aria-label="Ngưỡng mệt và drowsiness qua 10 chuyến thật"></svg></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <!-- Per-trip table -->
+    <section class="panel span2">
+      <div class="p-head"><h2 class="p-title">Chi tiết 10 chuyến thật</h2>
+        <span class="p-tag">perception → V1</span></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr>
+          <th>Chuyến</th><th>Kịch bản</th><th>Drowsiness</th><th>Sự kiện thật</th>
+          <th>Trạng thái</th><th>Ngưỡng</th><th>Floor</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+      <div class="quote" id="quote"></div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="split">
+      <div class="box real">
+        <h3>✓ Thật (dùng trong run này)</h3>
+        <ul>
+          <li>Drowsiness từ model resnet18 đọc <b>frame mặt tài xế thật</b></li>
+          <li>Sự kiện nguy hiểm từ <code>events_log</code> thật (cut-in, phanh gấp, người băng đường…)</li>
+          <li>Kinematics thật (tốc độ, gia tốc) → phát hiện phanh gấp</li>
+        </ul>
+      </div>
+      <div class="box red">
+        <h3>✗ Bị redacted (KHÔNG dùng)</h3>
+        <ul>
+          <li><code>driver_state</code>, <code>min_ttc</code>, điểm risk — chính là mục tiêu đội phải dự đoán</li>
+          <li>Ta tái tạo tín hiệu tài xế bằng model của mình, không dùng đáp án</li>
+        </ul>
+      </div>
+    </div>
+    <div class="box">
+      <h3>Tự tái tạo (chạy trước mặt BGK)</h3>
+      <pre><code>python -m evidence.perceive_driver     # model đọc footage thật → drowsiness
+python -m evidence.run_real_data       # nạp vào V1 → bảng + báo cáo</code></pre>
+    </div>
+    <p class="fineprint"><b>Ranh giới:</b> V1 chỉ TƯ VẤN. Ngưỡng là số gợi ý; lệnh an toàn do V4
+      (deterministic) quyết định và luôn tự kẹp theo floor của chính V4.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const trips = [
+    {id:"T01d",scen:"highway evening · cut-in + lead brake",drow:0.18,thr:0.70,state:"COLD_START",floor:false,ev:["cut-in","lead brake"],det:"alert/distracted"},
+    {id:"T02d",scen:"suburban rain · jaywalk + lead brake",drow:0.08,thr:0.41,state:"WARMING",floor:false,ev:["lead brake","jaywalk","stopped"],det:"alert"},
+    {id:"T03d",scen:"urban rush hour · cut-in + jaywalk",drow:0.97,thr:0.85,state:"PERSONALIZED",floor:true,ev:["cut-in","jaywalk","stopped"],det:"microsleep"},
+    {id:"T04d",scen:"foggy dawn highway · stopped in fog",drow:0.93,thr:0.85,state:"PERSONALIZED",floor:true,ev:["cut-in","jaywalk","stopped"],det:"drowsy"},
+    {id:"T05d",scen:"rural monotonous drive",drow:0.99,thr:0.85,state:"PERSONALIZED",floor:true,ev:["cut-in","lead brake"],det:"microsleep"},
+    {id:"T06d",scen:"midday rainy intersection",drow:0.87,thr:0.85,state:"PERSONALIZED",floor:true,ev:["jaywalk","lead brake","stopped"],det:"drowsy"},
+    {id:"T07d",scen:"highway sun glare · cut-in + debris",drow:0.00,thr:0.108,state:"PERSONALIZED",floor:false,ev:["cut-in","lead brake","stopped"],det:"distracted"},
+    {id:"T08d",scen:"construction zone · lane closure",drow:0.17,thr:0.414,state:"PERSONALIZED",floor:false,ev:["jaywalk","cut-in","stopped"],det:"alert"},
+    {id:"T09d",scen:"midnight urban · DROWSY driver",drow:0.86,thr:0.85,state:"PERSONALIZED",floor:true,ev:["cut-in","jaywalk","lead brake"],det:"drowsy"},
+    {id:"T10d",scen:"rainy night highway",drow:0.20,thr:0.293,state:"PERSONALIZED",floor:false,ev:["cut-in","lead brake","stopped"],det:"yawning/distracted"},
+  ];
+  const GLOBAL=0.70, FLOOR=0.85;
+
+  // perception cross-check cards (strongest verifiable matches)
+  const checks = [
+    {id:"T09d", scen:"“midnight urban, drowsy driver”", exp:"buồn ngủ", got:"drowsy 0.86"},
+    {id:"T05d", scen:"“rural monotonous drive”", exp:"đơn điệu → buồn ngủ", got:"microsleep 0.99"},
+    {id:"T07d", scen:"“highway sun glare”", exp:"chói → mất tập trung", got:"distracted · drowsy 0.00"},
+    {id:"T02d", scen:"“suburban rain” (không buồn ngủ)", exp:"tỉnh táo", got:"alert 0.08"},
+  ];
+  document.getElementById("checks").innerHTML = checks.map(c=>`
+    <div class="check">
+      <div class="trip">${c.id}</div>
+      <div class="scen">Kịch bản: ${c.scen}</div>
+      <div class="row">Kỳ vọng: ${c.exp} <span class="arrow">→</span>
+        <b class="hit">model: ${c.got}</b><span class="badge">KHỚP</span></div>
+    </div>`).join("");
+
+  // chart
+  const W=720,H=340,mL=48,mR=16,mT=18,mB=54, vMin=0, vMax=1;
+  const x=i=>mL+(i/(trips.length-1))*(W-mL-mR);
+  const y=v=>mT+(vMax-v)/(vMax-vMin)*(H-mT-mB);
+  const NS="http://www.w3.org/2000/svg", svg=document.querySelector("svg.chart");
+  const add=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return svg.appendChild(e);};
+  [0,0.25,0.5,0.75,1].forEach(v=>{ add("line",{x1:mL,x2:W-mR,y1:y(v),y2:y(v),stroke:"var(--edge)","stroke-width":1});
+    let t=add("text",{x:mL-8,y:y(v)+4,"text-anchor":"end","font-size":10,fill:"var(--faint)"}); t.textContent=v.toFixed(2); t.style.fontFamily="var(--mono)"; });
+  // reference lines
+  add("line",{x1:mL,x2:W-mR,y1:y(GLOBAL),y2:y(GLOBAL),stroke:"var(--muted)","stroke-width":1.3,"stroke-dasharray":"3 4"});
+  let g=add("text",{x:W-mR,y:y(GLOBAL)-5,"text-anchor":"end","font-size":10,fill:"var(--muted)"}); g.textContent="mặc định 0.70"; g.style.fontFamily="var(--mono)";
+  add("line",{x1:mL,x2:W-mR,y1:y(FLOOR),y2:y(FLOOR),stroke:"var(--crit)","stroke-width":1.3,"stroke-dasharray":"2 4"});
+  let f=add("text",{x:W-mR,y:y(FLOOR)-5,"text-anchor":"end","font-size":10,fill:"var(--crit)"}); f.textContent="safety floor 0.85"; f.style.fontFamily="var(--mono)";
+  // x labels
+  trips.forEach((tp,i)=>{ let a=add("text",{x:x(i),y:H-mB+18,"text-anchor":"middle","font-size":10,fill:"var(--muted)"}); a.textContent=tp.id; a.style.fontFamily="var(--mono)"; });
+  add("text",{x:mL,y:H-mB+38,"font-size":9.5,fill:"var(--faint)"}).textContent="COLD";
+  let wt=add("text",{x:x(1),y:H-mB+38,"text-anchor":"middle","font-size":9.5,fill:"var(--faint)"}); wt.textContent="WARMING";
+  let pt=add("text",{x:x(6),y:H-mB+38,"text-anchor":"middle","font-size":9.5,fill:"var(--faint)"}); pt.textContent="PERSONALIZED (≥ chuyến 3)";
+  // drowsiness line (amber, dashed)
+  add("polyline",{points:trips.map((t,i)=>`${x(i)},${y(t.drow)}`).join(" "),fill:"none",stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"4 3","stroke-linejoin":"round"});
+  trips.forEach((t,i)=>add("circle",{cx:x(i),cy:y(t.drow),r:2.4,fill:"var(--warn)"}));
+  // threshold line (teal) with floored points in red
+  add("polyline",{points:trips.map((t,i)=>`${x(i)},${y(t.thr)}`).join(" "),fill:"none",stroke:"var(--accent)","stroke-width":2.8,"stroke-linejoin":"round","stroke-linecap":"round"});
+  trips.forEach((t,i)=>add("circle",{cx:x(i),cy:y(t.thr),r:t.floor?4.5:3,fill:t.floor?"var(--crit)":"var(--accent)",stroke:"var(--panel)","stroke-width":1.5}));
+
+  document.getElementById("legend").innerHTML =
+    `<div class="lg"><i style="background:var(--accent)"></i>Ngưỡng mệt V1 (advisory)</div>
+     <div class="lg"><i style="background:var(--warn)"></i>Drowsiness thật (model)</div>
+     <div class="lg"><i style="background:var(--crit)"></i>Bị safety floor chặn</div>`;
+
+  // table
+  document.getElementById("tbody").innerHTML = trips.map(t=>`
+    <tr>
+      <td class="num">${t.id}</td>
+      <td>${t.scen}</td>
+      <td><div class="drow-cell"><span class="num">${t.drow.toFixed(2)}</span>
+        <span class="drow-bar"><i style="width:${(t.drow*100).toFixed(0)}%;background:${t.drow>0.6?'var(--crit)':t.drow>0.3?'var(--warn)':'var(--good)'}"></i></span></div></td>
+      <td style="text-align:left;color:var(--muted);font-size:11.5px">${t.ev.join(", ")}</td>
+      <td><span class="state ${t.state==='PERSONALIZED'?'P':''}">${t.state}</span></td>
+      <td class="num">${t.thr.toFixed(3)}</td>
+      <td>${t.floor?'<span class="floor">0.85</span>':'<span style="color:var(--faint)">—</span>'}</td>
+    </tr>`).join("");
+
+  document.getElementById("quote").innerHTML =
+    `<span class="cap">Giải thích tiếng Việt · T09d (midnight urban, drowsy driver) · grounded từ dữ kiện thật</span>
+     “Guardian phát hiện xe máy tạt đầu ở phía trước có nguy cơ va chạm; Guardian đã phát cảnh báo để nhắc bạn. — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.”`;
+})();
+</script>

@@ -1,0 +1,277 @@
+{
+  "source": "Hackathon_Dataset_Redacted.zip",
+  "perception_model": "resnet18",
+  "reasoning_backend": "deterministic-fallback",
+  "driver": "driver_carla",
+  "trips": [
+    {
+      "trip_id": "T01d",
+      "scenario": "highway evening, motorcycle cut-in + mild lead brake (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "alert": 30,
+        "distracted": 15
+      },
+      "drowsiness_mean": 0.1847,
+      "drowsiness_max": 0.4287,
+      "real_events": [
+        "motorcycle_cut_in",
+        "lead_brake"
+      ],
+      "n_events_ingested": 53,
+      "state": "COLD_START",
+      "trip_count": 1,
+      "fatigue_threshold": 0.7,
+      "confidence": 0.2,
+      "used_global_default": true,
+      "safety_floor_hit": false,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện xe máy tạt đầu ở phía trước có nguy cơ va chạm; Guardian đã phát cảnh báo để nhắc bạn. Chuyến T01d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.12). có 2 tình huống rủi ro vật cản — Guardian đang dùng ngưỡng an toàn mặc định vì chưa đủ dữ liệu về bạn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T02d",
+      "scenario": "suburban rain, pedestrian jaywalk + lead brake (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "alert": 45
+      },
+      "drowsiness_mean": 0.0757,
+      "drowsiness_max": 0.2039,
+      "real_events": [
+        "lead_brake",
+        "pedestrian_jaywalk",
+        "stopped_vehicle_ahead"
+      ],
+      "n_events_ingested": 54,
+      "state": "WARMING",
+      "trip_count": 2,
+      "fatigue_threshold": 0.41,
+      "confidence": 0.4,
+      "used_global_default": false,
+      "safety_floor_hit": false,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện xe phía trước phanh gấp ở phía trước có nguy cơ va chạm; Guardian đã hỗ trợ phanh để giữ khoảng cách an toàn. Chuyến T02d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.07). có 3 tình huống rủi ro vật cản — Guardian đang học thói quen lái của bạn để điều chỉnh cho phù hợp hơn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T03d",
+      "scenario": "urban rush hour, cut-in + jaywalk during distraction (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "microsleep": 45
+      },
+      "drowsiness_mean": 0.9683,
+      "drowsiness_max": 0.9956,
+      "real_events": [
+        "motorcycle_cut_in",
+        "pedestrian_jaywalk",
+        "stopped_vehicle_ahead"
+      ],
+      "n_events_ingested": 53,
+      "state": "PERSONALIZED",
+      "trip_count": 3,
+      "fatigue_threshold": 0.85,
+      "confidence": 0.6,
+      "used_global_default": false,
+      "safety_floor_hit": true,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện xe máy tạt đầu ở phía trước có nguy cơ va chạm; Guardian đã phát cảnh báo để nhắc bạn. Chuyến T02d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.07). có 3 tình huống rủi ro vật cản — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T04d",
+      "scenario": "foggy dawn highway, stopped vehicle in fog + cut-in (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "drowsy": 42,
+        "alert": 3
+      },
+      "drowsiness_mean": 0.9301,
+      "drowsiness_max": 0.9964,
+      "real_events": [
+        "motorcycle_cut_in",
+        "pedestrian_jaywalk",
+        "stopped_vehicle_ahead"
+      ],
+      "n_events_ingested": 54,
+      "state": "PERSONALIZED",
+      "trip_count": 4,
+      "fatigue_threshold": 0.85,
+      "confidence": 0.8,
+      "used_global_default": false,
+      "safety_floor_hit": true,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện xe máy tạt đầu ở phía trước có nguy cơ va chạm; Guardian đã phát cảnh báo để nhắc bạn. Chuyến T02d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.07). có 3 tình huống rủi ro vật cản — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T05d",
+      "scenario": "rural monotonous drive, slow vehicle ahead near end (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "microsleep": 45
+      },
+      "drowsiness_mean": 0.9866,
+      "drowsiness_max": 0.9962,
+      "real_events": [
+        "motorcycle_cut_in",
+        "lead_brake"
+      ],
+      "n_events_ingested": 53,
+      "state": "PERSONALIZED",
+      "trip_count": 5,
+      "fatigue_threshold": 0.85,
+      "confidence": 1.0,
+      "used_global_default": false,
+      "safety_floor_hit": true,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện xe máy tạt đầu ở phía trước có nguy cơ va chạm; Guardian đã phát cảnh báo để nhắc bạn. Chuyến T02d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.07). có 3 tình huống rủi ro vật cản — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T06d",
+      "scenario": "midday rainy intersection, jaywalk + lead brake (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "drowsy": 38,
+        "distracted": 5,
+        "alert": 2
+      },
+      "drowsiness_mean": 0.8698,
+      "drowsiness_max": 0.998,
+      "real_events": [
+        "pedestrian_jaywalk",
+        "lead_brake",
+        "stopped_vehicle_ahead"
+      ],
+      "n_events_ingested": 54,
+      "state": "PERSONALIZED",
+      "trip_count": 6,
+      "fatigue_threshold": 0.85,
+      "confidence": 1.0,
+      "used_global_default": false,
+      "safety_floor_hit": true,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện người đi bộ băng qua đường ở phía trước có nguy cơ va chạm; Guardian đã hỗ trợ phanh để giữ khoảng cách an toàn. Chuyến T02d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.07). có 3 tình huống rủi ro vật cản — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T07d",
+      "scenario": "highway sun glare, cut-in + lead brake + stopped debris (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "distracted": 40,
+        "alert": 5
+      },
+      "drowsiness_mean": 0.0036,
+      "drowsiness_max": 0.1021,
+      "real_events": [
+        "motorcycle_cut_in",
+        "lead_brake",
+        "stopped_vehicle_ahead"
+      ],
+      "n_events_ingested": 51,
+      "state": "PERSONALIZED",
+      "trip_count": 7,
+      "fatigue_threshold": 0.108,
+      "confidence": 1.0,
+      "used_global_default": false,
+      "safety_floor_hit": false,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện xe máy tạt đầu ở phía trước có nguy cơ va chạm; Guardian đã phát cảnh báo để nhắc bạn. Chuyến T02d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.07). có 3 tình huống rủi ro vật cản — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T08d",
+      "scenario": "construction zone, lane closure + pedestrian (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "alert": 45
+      },
+      "drowsiness_mean": 0.1681,
+      "drowsiness_max": 0.4429,
+      "real_events": [
+        "pedestrian_jaywalk",
+        "motorcycle_cut_in",
+        "stopped_vehicle_ahead"
+      ],
+      "n_events_ingested": 56,
+      "state": "PERSONALIZED",
+      "trip_count": 8,
+      "fatigue_threshold": 0.414,
+      "confidence": 1.0,
+      "used_global_default": false,
+      "safety_floor_hit": false,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện người đi bộ băng qua đường ở phía trước có nguy cơ va chạm; Guardian đã hỗ trợ phanh để giữ khoảng cách an toàn. Chuyến T08d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.22). có 3 tình huống rủi ro vật cản — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T09d",
+      "scenario": "midnight urban, drowsy driver, cut-in + jaywalk + brake (compressed)",
+      "driver_profile": "aggressive",
+      "detected_states": {
+        "drowsy": 45
+      },
+      "drowsiness_mean": 0.8597,
+      "drowsiness_max": 0.9635,
+      "real_events": [
+        "motorcycle_cut_in",
+        "pedestrian_jaywalk",
+        "lead_brake"
+      ],
+      "n_events_ingested": 53,
+      "state": "PERSONALIZED",
+      "trip_count": 9,
+      "fatigue_threshold": 0.85,
+      "confidence": 1.0,
+      "used_global_default": false,
+      "safety_floor_hit": true,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện xe máy tạt đầu ở phía trước có nguy cơ va chạm; Guardian đã phát cảnh báo để nhắc bạn. Chuyến T08d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.22). có 3 tình huống rủi ro vật cản — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.",
+      "used_fallback": true
+    },
+    {
+      "trip_id": "T10d",
+      "scenario": "rainy night highway, cut-in + lead brake + stopped vehicle (compressed)",
+      "driver_profile": "normal",
+      "detected_states": {
+        "yawning": 12,
+        "distracted": 21,
+        "alert": 12
+      },
+      "drowsiness_mean": 0.1988,
+      "drowsiness_max": 0.5028,
+      "real_events": [
+        "motorcycle_cut_in",
+        "lead_brake",
+        "stopped_vehicle_ahead"
+      ],
+      "n_events_ingested": 54,
+      "state": "PERSONALIZED",
+      "trip_count": 10,
+      "fatigue_threshold": 0.293,
+      "confidence": 1.0,
+      "used_global_default": false,
+      "safety_floor_hit": false,
+      "headline_event": "OBJECT_RISK",
+      "explanation_vi": "Guardian phát hiện nguy cơ va chạm với vật cản: Guardian phát hiện xe máy tạt đầu ở phía trước có nguy cơ va chạm; Guardian đã phát cảnh báo để nhắc bạn. Chuyến T02d: có 45 cảnh báo mệt (PERCLOS trung bình ~0.07). có 3 tình huống rủi ro vật cản — Guardian đã điều chỉnh theo thói quen lái quen thuộc của bạn.",
+      "used_fallback": true
+    }
+  ],
+  "totals": {
+    "events": 535,
+    "by_type": {
+      "FATIGUE_ALERT": 450,
+      "OBJECT_RISK": 28,
+      "SAFETY_DECISION": 57
+    }
+  },
+  "latency_explain_ms": {
+    "p50": 0.141,
+    "max": 0.193,
+    "n": 10
+  },
+  "explanations_nonempty": true
+}

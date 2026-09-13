@@ -1,0 +1,79 @@
+{
+  "dataset": {
+    "key": "n7",
+    "repo_id": "n7i5x9/driver-drowsiness-dataset",
+    "split": "test",
+    "licence": "NOT DECLARED by the uploader - treat as research-use only",
+    "provenance": "Hugging Face: n7i5x9/driver-drowsiness-dataset. 23,116 images at 640x640, split train/validation/test.",
+    "notes": "Session-level labels, same caveat as `ddd`.",
+    "sampled": 1200,
+    "seed": 42
+  },
+  "summary": {
+    "frames_evaluated": 1200,
+    "faces_detected": 694,
+    "face_detection_rate": 0.5783,
+    "frames_without_face": 506,
+    "thresholds": {
+      "perclos_drowsy": 0.08,
+      "perclos_microsleep": 0.45,
+      "eye_blink_mean_drowsy": 0.12,
+      "jaw_yawn": 0.2,
+      "eye_closed_cut": 0.5
+    },
+    "per_class": {
+      "alert": {
+        "frames": 326,
+        "eye_blink": {
+          "n": 326,
+          "median": 0.107,
+          "mean": 0.2107,
+          "p10": 0.0172,
+          "p90": 0.6728
+        },
+        "jaw_open": {
+          "n": 326,
+          "median": 0.3146,
+          "mean": 0.3557,
+          "p10": 0.0045,
+          "p90": 0.7773
+        },
+        "closed_frame_rate": 0.1687,
+        "yawn_frame_rate": 0.5675
+      },
+      "drowsy": {
+        "frames": 368,
+        "eye_blink": {
+          "n": 368,
+          "median": 0.1276,
+          "mean": 0.2414,
+          "p10": 0.0263,
+          "p90": 0.6111
+        },
+        "jaw_open": {
+          "n": 368,
+          "median": 0.5319,
+          "mean": 0.4714,
+          "p10": 0.0031,
+          "p90": 0.8528
+        },
+        "closed_frame_rate": 0.1875,
+        "yawn_frame_rate": 0.7038
+      }
+    },
+    "separation": {
+      "eye_blink_auc_drowsy_vs_alert": 0.5519,
+      "jaw_open_auc_drowsy_vs_alert": 0.5995
+    },
+    "perclos_check": {
+      "drowsy_closed_rate_above_perclos_threshold": true,
+      "alert_closed_rate_below_perclos_threshold": false,
+      "threshold_discriminates": false,
+      "drowsy_closed_rate_above_alert": true,
+      "margin_vs_threshold": 0.1075,
+      "alert_margin_vs_threshold": 0.0887,
+      "margin_vs_alert": 0.0188
+    }
+  },
+  "generated_at": "2026-09-13T23:01:03+00:00"
+}

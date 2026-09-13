@@ -1,0 +1,78 @@
+﻿Nhom,Hang muc,Trang thai,Gia tri,Ghi chu
+1. DIEM SO,Challenge 1 - Collision Risk (TTC),XONG,65.60,Baseline BTC 19.70. LOTO trung thuc 65.23
+1. DIEM SO,Challenge 2 - Driver Intelligence,XONG,92.60,In-sample. LOTO trung thuc 84.50
+1. DIEM SO,Challenge 3 - Fleet Safe Driving Score,XONG,100.0,Vo nghia cuc bo: 6 trip Practice deu co safe_score=0 (kep tran)
+1. DIEM SO,Cham boi,-,team_kit/evaluation.py,"Evaluator chinh thuc cua BTC, khong phai metric tu che"
+2. C1 THEO TRIP,T04-Sample,XONG,86.8,MAE-critical 0.435s
+2. C1 THEO TRIP,T03-Sample,XONG,84.9,MAE-critical 0.241s
+2. C1 THEO TRIP,T06-Sample,XONG,76.5,MAE-critical 0.533s
+2. C1 THEO TRIP,T01-Sample,XONG,63.7,MAE-critical 1.23s
+2. C1 THEO TRIP,T02-Sample,XONG,41.6,MAE-critical 46.683s
+2. C1 THEO TRIP,T05-Sample,XONG,40.0,MAE-critical 14.69s
+3. C2 THEO TRIP,T03-Sample,XONG,100.0,Accuracy 1.0
+3. C2 THEO TRIP,T05-Sample,XONG,100.0,Accuracy 1.0
+3. C2 THEO TRIP,T02-Sample,XONG,97.9,Accuracy 0.972
+3. C2 THEO TRIP,T01-Sample,XONG,93.5,Accuracy 0.925
+3. C2 THEO TRIP,T06-Sample,XONG,93.0,Accuracy 0.93
+3. C2 THEO TRIP,T04-Sample,XONG,71.4,Accuracy 0.687
+4. FILE NOP BAI,T01d.csv,HOP LE,1800 dong,hazard 531 | near-miss 97 | state troi: drowsy
+4. FILE NOP BAI,T02d.csv,HOP LE,1800 dong,hazard 487 | near-miss 52 | state troi: yawning
+4. FILE NOP BAI,T03d.csv,HOP LE,1800 dong,hazard 395 | near-miss 67 | state troi: drowsy
+4. FILE NOP BAI,T04d.csv,HOP LE,1800 dong,hazard 187 | near-miss 54 | state troi: drowsy
+4. FILE NOP BAI,T05d.csv,HOP LE,1800 dong,hazard 232 | near-miss 64 | state troi: drowsy
+4. FILE NOP BAI,T06d.csv,HOP LE,1800 dong,hazard 324 | near-miss 69 | state troi: drowsy
+4. FILE NOP BAI,T07d.csv,HOP LE,1800 dong,hazard 176 | near-miss 74 | state troi: distracted
+4. FILE NOP BAI,T08d.csv,HOP LE,1800 dong,hazard 218 | near-miss 38 | state troi: drowsy
+4. FILE NOP BAI,T09d.csv,HOP LE,1800 dong,hazard 393 | near-miss 94 | state troi: drowsy
+4. FILE NOP BAI,T10d.csv,HOP LE,1800 dong,hazard 312 | near-miss 58 | state troi: drowsy
+5. DELIVERABLES,01 - 10 file CSV predictions,XONG,10/10 hop le,predictions/GuardianCoPilot/
+5. DELIVERABLES,02 - GitHub repository,CHUA,CHUA TAO,Can push public hoac private + invite BTC
+5. DELIVERABLES,02 - README.md,XONG,380 dong,"Song ngu, co kien truc + known issues"
+5. DELIVERABLES,02 - requirements.txt,XONG,51 dong,Kem canh bao cai torch ban CUDA
+5. DELIVERABLES,02 - .gitignore,XONG,50 dong,Chan commit dataset theo luat
+5. DELIVERABLES,03 - Video HUD demo,XONG,14.5 MB,artifacts/demo/T04-Sample_hud.mp4
+5. DELIVERABLES,03 - Dashboard tuong tac,XONG,Streamlit,Da chay kiem chung tren trinh duyet
+5. DELIVERABLES,03 - Video thuyet trinh 5-6 phut,CHUA,CHUA QUAY,Nguyen lieu da san sang
+5. DELIVERABLES,04 - Ghi chu trien khai,XONG,344 dong,Kem bang ablation + known issues
+5. DELIVERABLES,05 - Khai bao dung AI (luat 6.7),XONG,Muc 3,Liet ke ca 6 loi AI mac phai - BGK danh gia cao su trung thuc
+6. DOD CHECKLIST,1. Chay pipeline tren 6 trip Practice,DAT,,
+6. DOD CHECKLIST,2. evaluation.py chay khong loi,DAT,,Da chay lai 24/07
+6. DOD CHECKLIST,3. Khong co cot ground truth tu che,DAT,,Validator tu dong chan
+6. DOD CHECKLIST,4. Du 1 CSV moi trip (10 trip),DAT,,
+6. DOD CHECKLIST,5. Ten file dung quy uoc,DAT,,predictions/<team>/<trip>.csv
+6. DOD CHECKLIST,6. So dong khop 1800,DAT,,
+6. DOD CHECKLIST,7. GitHub repo,THIEU,,VIEC CAN LAM
+6. DOD CHECKLIST,8. README mo ta approach,DAT,,
+6. DOD CHECKLIST,9. requirements.txt,DAT,,
+6. DOD CHECKLIST,10. Khong commit dataset,DAT,,.gitignore
+6. DOD CHECKLIST,11. Video demo hoac dashboard,DAT,,Co ca hai
+6. DOD CHECKLIST,12. Ghi chu trien khai + known issues,DAT,,
+6. DOD CHECKLIST,13. Khong chia se dataset,DAT,,
+6. DOD CHECKLIST,14. Ghi ro nguon + license pretrained,DAT,,"YOLOv8 AGPL-3.0, MediaPipe Apache-2.0, torchvision BSD-3"
+6. DOD CHECKLIST,TONG KET,13/14,93%,Chi thieu GitHub repo
+7. PHAT HIEN KY THUAT,C2: Luat sinh ly thang deep learning,XONG,84.5 vs 18.5,CNN 18.5 -> GB 23.8 -> GB bat bien 43.7 -> Luat sinh ly 84.5
+7. PHAT HIEN KY THUAT,Nguyen nhan CNN that bai,XONG,chi 6 tai xe,600 frame/trip @20FPS gan trung nhau - model hoc thuoc khuon mat
+7. PHAT HIEN KY THUAT,C1: Dao nguoc cong thuc cham diem,XONG,GAP + cone 2.5m,walker 2.60 / bike 3.49 / vehicle 4.81 m
+7. PHAT HIEN KY THUAT,C1: Hieu chinh khoang cach theo lop,XONG,sai so 52% -> 0.1%,Z = a*z_stereo + b*z_width + c
+7. PHAT HIEN KY THUAT,C1: Nguong confidence rieng theo lop,XONG,51.9 -> 59.1,vehicle 0.25 / bike 0.10 / walker 0.10
+7. PHAT HIEN KY THUAT,C1: Mo rong cua so lam muot 3->13,XONG,59.1 -> 65.6,1 frame bo sot = +97s MAE critical
+7. PHAT HIEN KY THUAT,Da thu va BAC BO: imgsz 1280,BAC BO,13/19 -> 0/19,"Anh goc 640x360, phong to chi them nhieu noi suy"
+7. PHAT HIEN KY THUAT,Da thu va BAC BO: TTA augment,BAC BO,13/19 -> 9/19,
+7. PHAT HIEN KY THUAT,Da thu va BAC BO: YOLOv8m / v8l,BAC BO,12/19 vs v8s 13/19,Cham hon 2-3 lan ma khong tot hon
+8. RUI RO,Trien khai len CarSky/VDP,CHUA BAT DAU,CAO,Luat 3.7 bat buoc nop len VDP. Chua co tai khoan/API key
+8. RUI RO,Docker chua cai tren may,CHAN DUONG,CAO,Khong build duoc container CarSky
+8. RUI RO,Sample project AEB test bench,CHUA CO,CAO,BTC cap rieng kem tutorial - can xin mentor
+8. RUI RO,C2 gan drowsy nhieu o trip cham diem,DA GHI NHAN,TRUNG BINH,T08d 1744/1800. Da thu chuan hoa theo trip - khong doi ket qua. Khong xac minh duoc vi trip cham diem khong co nhan
+8. RUI RO,C1 recall xe dap con yeu,DA GHI NHAN,TRUNG BINH,T02 41.6 / T05 40.0. Detection da kich tran voi COCO YOLO
+8. RUI RO,C3 khong kiem chung duoc cuc bo,DA GHI NHAN,THAP,Ca 6 trip Practice deu co safe_score=0
+9. CAU HOI MENTOR,Cau hoi 1,CAN TRA LOI,,"Sample project AEB test bench (Dockerfile, aeb.dbc, vss.json, blueprint, scenarios) lay o dau?"
+9. CAU HOI MENTOR,Cau hoi 2,CAN TRA LOI,,Tai khoan CarSky + API key registry Zot cua doi da duoc cap chua? Host cu the la gi?
+9. CAU HOI MENTOR,Cau hoi 3,CAN TRA LOI,,"Nop bai len VDP co bat buoc khong, hay CSV + GitHub la du?"
+9. CAU HOI MENTOR,Cau hoi 4,CAN TRA LOI,,Cluster CarSky chay arm64 hay x86_64? (quyet dinh cach build image)
+9. CAU HOI MENTOR,Cau hoi 5,CAN TRA LOI,,Y tuong AEB co nguong phanh thich ung theo trang thai tai xe co phu hop huong cham khong?
+10. KHOI LUONG,So file Python,-,19,
+10. KHOI LUONG,So dong ma nguon,-,4918,
+10. KHOI LUONG,Thoi gian tai tao bai nop,-,5 giay,python guardian/run_all.py (khi da co cache)
+10. KHOI LUONG,Trich dac trung driver lan dau,-,~7 phut,21.000 frame @ 50fps
+10. KHOI LUONG,Trich perception lan dau,-,~25 phut,21.600 frame @ 20fps
+10. KHOI LUONG,Phan cung,-,RTX 4070 Laptop 8GB,"Windows 11, Python 3.14, CUDA 13.0"

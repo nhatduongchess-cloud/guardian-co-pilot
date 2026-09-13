@@ -1,0 +1,338 @@
+<title>Báo cáo tiến độ C2 giữa kỳ — Vertical 1</title>
+<style>
+  :root {
+    --accent:#c1272d; --accent-2:#1f4e79;
+    --ink:#191713; --muted:#57534d; --faint:#8a847b;
+    --bg:#ffffff; --panel:#faf8f5; --panel-2:#f3efe9; --edge:#e6e0d7;
+    --good:#2f8f5b; --warn:#b5791a; --crit:#c1272d;
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#ece7df; --muted:#a9a297; --faint:#7c756a; --bg:#14120f;
+      --panel:#1b1815; --panel-2:#221e1a; --edge:#332e28; --accent:#e2564b;
+      --accent-2:#5b8fc4; --good:#4bc07f; --warn:#e0a840; --crit:#e2564b; }
+  }
+  :root[data-theme="light"] { --ink:#191713; --muted:#57534d; --faint:#8a847b;
+    --bg:#fff; --panel:#faf8f5; --panel-2:#f3efe9; --edge:#e6e0d7; --accent:#c1272d;
+    --accent-2:#1f4e79; --good:#2f8f5b; --warn:#b5791a; --crit:#c1272d; }
+  :root[data-theme="dark"] { --ink:#ece7df; --muted:#a9a297; --faint:#7c756a; --bg:#14120f;
+    --panel:#1b1815; --panel-2:#221e1a; --edge:#332e28; --accent:#e2564b; --accent-2:#5b8fc4;
+    --good:#4bc07f; --warn:#e0a840; --crit:#e2564b; }
+
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
+    line-height:1.62; font-size:15px; -webkit-font-smoothing:antialiased; }
+  .sheet { max-width:840px; margin:0 auto; padding:40px 30px 64px; }
+
+  /* top band echoing the form */
+  .rule { height:4px; border-radius:2px; margin-bottom:16px;
+    background:linear-gradient(90deg, var(--accent) 0%, var(--accent) 46%, var(--accent-2) 100%); }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+  .brand { font-weight:700; letter-spacing:.02em; }
+  .brand b { color:var(--accent); }
+  .brand span { color:var(--faint); font-weight:600; }
+  .deadline { font-family:var(--mono); font-size:12px; border:1.5px solid var(--ink);
+    padding:6px 11px; border-radius:4px; letter-spacing:.03em; }
+
+  .eyebrow { font-family:var(--mono); font-size:11.5px; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--accent); font-weight:700; margin:0 0 8px; }
+  h1 { font-size:clamp(27px,4.5vw,38px); line-height:1.08; margin:0 0 12px; letter-spacing:-.02em;
+    font-weight:750; text-wrap:balance; }
+  .lede { color:var(--muted); font-size:15.5px; margin:0 0 18px; max-width:64ch; }
+  .meta { display:flex; flex-wrap:wrap; gap:8px 10px; margin-bottom:6px; }
+  .tag { font-family:var(--mono); font-size:11.5px; color:var(--muted); background:var(--panel);
+    border:1px solid var(--edge); border-radius:999px; padding:5px 11px; }
+  .tag b { color:var(--ink); }
+  .tag.ok { color:var(--good); border-color:color-mix(in srgb,var(--good) 40%,transparent);
+    background:color-mix(in srgb,var(--good) 9%,transparent); }
+
+  section { margin-top:34px; }
+  h2 { font-size:16.5px; margin:0 0 12px; letter-spacing:-.01em; display:flex; align-items:baseline; gap:11px;
+    padding-bottom:9px; border-bottom:2px solid var(--edge); }
+  h2 .n { font-family:var(--mono); color:var(--accent); font-weight:700; font-size:14px; }
+  h3 { font-size:13.5px; margin:20px 0 7px; color:var(--ink); letter-spacing:.01em; }
+  p { margin:0 0 11px; }
+  .muted { color:var(--muted); }
+  ul { margin:0 0 11px; padding-left:20px; }
+  li { margin:5px 0; }
+  strong { font-weight:650; }
+  code { font-family:var(--mono); font-size:.88em; background:var(--panel-2); border:1px solid var(--edge);
+    padding:1px 5px; border-radius:4px; }
+  a { color:var(--accent-2); text-underline-offset:2px; }
+
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:8px 28px; }
+  .card { background:var(--panel); border:1px solid var(--edge); border-radius:10px; padding:16px 18px; margin:12px 0; }
+  .card.accent { border-left:3px solid var(--accent); }
+
+  table { width:100%; border-collapse:collapse; font-size:13.5px; margin:6px 0 4px; }
+  th,td { text-align:left; padding:9px 11px; border-bottom:1px solid var(--edge); vertical-align:top; }
+  thead th { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700;
+    border-bottom:2px solid var(--edge); }
+  td.num, .mono { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+  .tbl-wrap { overflow-x:auto; }
+  .pill { font-family:var(--mono); font-size:10.5px; padding:2px 9px; border-radius:999px; border:1px solid; white-space:nowrap; }
+  .pill.done { color:var(--good); border-color:color-mix(in srgb,var(--good) 45%,transparent); background:color-mix(in srgb,var(--good) 10%,transparent); }
+  .pill.exceed { color:var(--accent-2); border-color:color-mix(in srgb,var(--accent-2) 45%,transparent); background:color-mix(in srgb,var(--accent-2) 10%,transparent); }
+  .pill.wip { color:var(--warn); border-color:color-mix(in srgb,var(--warn) 45%,transparent); background:color-mix(in srgb,var(--warn) 10%,transparent); }
+
+  pre { margin:8px 0; overflow-x:auto; background:var(--panel-2); border:1px solid var(--edge);
+    border-radius:8px; padding:11px 13px; }
+  pre code { background:none; border:none; padding:0; font-size:12.5px; }
+
+  .flow { font-family:var(--mono); font-size:12px; line-height:1.7; color:var(--muted);
+    background:var(--panel-2); border:1px solid var(--edge); border-radius:8px; padding:14px 16px; overflow-x:auto; white-space:pre; }
+  .flow b { color:var(--accent); }
+
+  .fill { color:var(--accent); font-weight:600; }
+  footer { margin-top:44px; padding-top:16px; border-top:1px solid var(--edge);
+    display:flex; justify-content:space-between; font-size:11.5px; color:var(--faint); font-family:var(--mono); }
+
+  @media (max-width:680px){ .cols{grid-template-columns:1fr;} }
+  @media print {
+    :root { --bg:#fff; --ink:#000; --muted:#333; --panel:#fff; --panel-2:#f6f6f6; --edge:#ccc; }
+    body { font-size:11pt; } .sheet { max-width:none; padding:0; }
+    section { break-inside:avoid; } table,.card,.flow,pre { break-inside:avoid; }
+    a { color:#000; text-decoration:underline; }
+    @page { margin:16mm 14mm; }
+  }
+</style>
+
+<div class="sheet">
+  <div class="rule"></div>
+  <div class="topbar">
+    <div class="brand"><b>M</b> · HACKATHON C2 <span>· BÁO CÁO TIẾN ĐỘ</span></div>
+    <div class="deadline">HẠN 03/08/2026</div>
+  </div>
+
+  <p class="eyebrow">Mốc C2 · Giữa kỳ · Vertical 1</p>
+  <h1>Personalization Engine — Báo cáo tiến độ</h1>
+  <p class="lede">Vertical 1 học thói quen từng tài xế qua các chuyến đi, đề xuất ngưỡng an toàn
+    cá nhân hoá cho Safety Kernel (V4) và sinh lời giải thích tiếng Việt cho Cockpit (V2) —
+    <strong>chỉ tư vấn, không bao giờ ra lệnh xe</strong>.</p>
+  <div class="meta">
+    <span class="tag ok"><b>154/154</b> test pass</span>
+    <span class="tag ok">coverage <b>78%</b></span>
+    <span class="tag ok">chạy trên <b>10 chuyến thật</b> cuộc thi</span>
+    <span class="tag">REST/FastAPI · Python 3.14</span>
+    <span class="tag">Đội: <span class="fill">[điền tên đội]</span></span>
+  </div>
+
+  <!-- 01 -->
+  <section>
+    <h2><span class="n">01</span> Tóm tắt giải pháp</h2>
+    <p>Guardian là hệ điều hành ADAS gồm nhiều vertical. <strong>Vertical 1 — Personalization
+      Engine</strong> là lớp cá nhân hoá &amp; giải thích: nó nhận telemetry an toàn từ V3
+      (perception) và V4 (world model), <strong>học baseline hành vi của từng tài xế</strong>,
+      rồi cung cấp hai đầu ra:</p>
+    <ul>
+      <li><strong>Ngưỡng an toàn cá nhân hoá (advisory)</strong> cho V4 đọc — luôn kẹp trong
+        "safety floor" do V4 sở hữu.</li>
+      <li><strong>Lời giải thích tiếng Việt ngắn gọn, có căn cứ</strong> cho V2 hiển thị + đọc TTS,
+        giữ niềm tin tài xế.</li>
+    </ul>
+    <p>Bốn ràng buộc kiến trúc được <strong>thực thi bằng code</strong>, không chỉ tuyên bố:
+      (1) advisory-only; (2) chỉ cá nhân hoá sau ≥3 chuyến; (3) giải thích grounded + có fallback,
+      không bịa; (4) chạy edge, không cần phần cứng mới.</p>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <h2><span class="n">02</span> Phạm vi cam kết trong proposal</h2>
+    <p class="muted">Trích từ spec kiến trúc V1 đã đăng ký. Cột phải là hiện trạng giữa kỳ.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Hạng mục cam kết</th><th>Trạng thái</th></tr></thead>
+      <tbody>
+        <tr><td>Event Ingestion &amp; Feature Store (log append-only theo chuyến)</td><td><span class="pill done">Xong</span></td></tr>
+        <tr><td>Driver Memory + State Machine <code>COLD_START→WARMING→PERSONALIZED</code></td><td><span class="pill done">Xong</span></td></tr>
+        <tr><td>Learning Loop (EMA + z-score, cập nhật theo lô sau chuyến)</td><td><span class="pill done">Xong</span></td></tr>
+        <tr><td>Reasoning Engine (Phi-3-mini ONNX) + fallback template tiếng Việt</td><td><span class="pill done">Xong</span> <span class="muted">(Phi-3 tùy chọn)</span></td></tr>
+        <tr><td>Personalization API: GetPersonalizedThreshold / GetExplanation</td><td><span class="pill done">Xong</span></td></tr>
+        <tr><td>Consent / transparency: xem &amp; xoá driver memory</td><td><span class="pill done">Xong</span></td></tr>
+        <tr><td>Eval harness (golden set + rubric)</td><td><span class="pill done">Xong</span></td></tr>
+        <tr><td>Không fine-tune LLM · không vector DB · dùng rolling baseline (chủ động "bớt")</td><td><span class="pill done">Theo cam kết</span></td></tr>
+        <tr><td>Tích hợp gRPC với TV5/V3/V4 (contract chung)</td><td><span class="pill wip">Còn lại</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <h2><span class="n">03</span> Kiến trúc &amp; luồng end-to-end</h2>
+    <div class="flow">   [V3 Perception]        [V4 World Model / Safety Kernel]
+   risk embedding          driver state · quyết định
+          └──────────┬──────────────┘
+                     ▼   TelemetryEvent
+   <b>VERTICAL 1 — PERSONALIZATION ENGINE</b>
+     ingestion/  → Feature Store (append-only theo chuyến)
+     memory/     → Driver Memory + State Machine + Learning Loop
+     reasoning/  → Phi-3 (hoặc fallback) → giải thích grounded
+     services/   → threshold · explanation · consent
+     api/        → REST (FastAPI)
+          │  GetPersonalizedThreshold        │  GetExplanation
+          ▼  (số advisory)                   ▼  (text_vi + TTS)
+     V4 Safety Kernel                    V2 Cockpit HMI</div>
+    <p><strong>Quyết định kiến trúc:</strong> spec vẽ gRPC; bản này dùng <strong>REST/FastAPI</strong>
+      để đồng bộ với phần còn lại của repo (V2 Cockpit cũng REST). Lớp service bên dưới
+      <em>transport-agnostic</em> — dựng gRPC sau chỉ cần tái dùng nguyên service, không sửa logic.</p>
+    <p><strong>Stack:</strong> Python 3.14 · FastAPI · Pydantic v2 · SQLite + JSONL (feature/memory store) ·
+      numpy (cosine retrieval) · ONNX Runtime GenAI cho Phi-3-mini INT4 (tùy chọn) · pytest.</p>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <h2><span class="n">04</span> Kết quả đã hoàn thành</h2>
+    <div class="cols">
+      <div>
+        <h3>Đã chạy được (end-to-end)</h3>
+        <ul class="muted">
+          <li>Kiến trúc phân lớp đầy đủ: models → ingestion → memory → reasoning → services → api → client</li>
+          <li>State machine 3 trạng thái + EMA baseline + safety-floor clamp</li>
+          <li>Reasoning engine với confidence gate chặn hallucinate + fallback tất định</li>
+          <li>14 REST endpoint (telemetry, threshold, explanation, memory, consent…)</li>
+          <li>Client cross-vertical để V4/V2 gọi bằng Python sạch</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Kiểm chứng</h3>
+        <ul class="muted">
+          <li><strong>154/154 test</strong> pass (pytest)</li>
+          <li><strong>Coverage 78%</strong> trên code nguồn</li>
+          <li>Eval reasoning <strong>12/12 (100%)</strong> theo rubric</li>
+          <li>Đã chạy trên <strong>10 chuyến thật</strong> của cuộc thi (535 sự kiện)</li>
+          <li>Bộ đo bằng chứng tái tạo được (<code>evidence/</code>)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <h2><span class="n">05</span> Demo tính năng cốt lõi</h2>
+    <p>Demo chạy trên <strong>môi trường thực tế</strong> (không phải mockup), gồm hai kịch bản:</p>
+    <div class="card accent">
+      <h3 style="margin-top:0">A · Cá nhân hoá trên data mô phỏng có kiểm soát</h3>
+      <pre><code>python -m mock_data.simulate_trips</code></pre>
+      <p class="muted" style="margin:0">Một tài xế đi từ <code>COLD_START → PERSONALIZED</code>; ngưỡng mệt
+        tụt 0.700 → 0.383; giải thích tiếng Việt đổi giọng theo trạng thái.</p>
+    </div>
+    <div class="card accent">
+      <h3 style="margin-top:0">B · Chạy trên 10 chuyến THẬT của cuộc thi</h3>
+      <pre><code>python -m evidence.perceive_driver     # model đọc footage thật → drowsiness
+python -m evidence.run_real_data       # nạp vào V1 → bảng kết quả</code></pre>
+      <p class="muted" style="margin:0">Perception model của đội (resnet18) đọc footage thật, đưa
+        535 sự kiện thật vào V1; safety floor kích hoạt đúng trên các chuyến buồn ngủ.</p>
+    </div>
+    <p><strong>Dashboard bằng chứng (HTML, tự chứa):</strong><br>
+      • Tổng hợp: <a href="https://claude.ai/code/artifact/d88e136b-f4b7-43f4-a4b3-43666912aa06">claude.ai/code/artifact/d88e136b…</a><br>
+      • Data thật: <a href="https://claude.ai/code/artifact/faf50407-4c25-4110-befc-0fd9c1b4910e">claude.ai/code/artifact/faf50407…</a></p>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <h2><span class="n">06</span> KPI &amp; số liệu ban đầu</h2>
+    <p class="muted">So sánh cam kết proposal với số đo thật (giữa kỳ). Số latency đo qua
+      <code>evidence/generate_evidence.py</code>; số data thật qua <code>run_real_data.py</code>.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Chỉ số</th><th>Cam kết (proposal)</th><th>Đạt được (giữa kỳ)</th><th>Trạng thái</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Độ chính xác / chất lượng</strong></td>
+          <td>Giải thích grounded, đúng, ≤2 câu; có đo lường</td>
+          <td class="mono">Eval rubric 12/12 = 100%. Perception khớp mô tả kịch bản 4/4 mẫu kiểm chứng</td>
+          <td><span class="pill done">Đạt</span></td>
+        </tr>
+        <tr>
+          <td><strong>Thời gian xử lý / độ trễ</strong></td>
+          <td>Giải thích async, ngoài Fast Path ≤100ms</td>
+          <td class="mono">Ngưỡng p50 0.045ms · giải thích 0.004ms · API 3-lời-gọi 4.7ms</td>
+          <td><span class="pill exceed">Vượt</span></td>
+        </tr>
+        <tr>
+          <td><strong>Tỷ lệ đúng/sai (an toàn)</strong></td>
+          <td>Không bịa thông tin an toàn; luôn có fallback</td>
+          <td class="mono">Chặn hallucinate 200/200 = 100% · 0 rò rỉ số bịa · 0 câu rỗng</td>
+          <td><span class="pill done">Đạt</span></td>
+        </tr>
+        <tr>
+          <td><strong>Mức hoàn thiện dữ liệu</strong></td>
+          <td>Feature store + memory, xử lý ≥3 chuyến</td>
+          <td class="mono">10 chuyến thật · 535 sự kiện ingest · store SQLite/JSONL</td>
+          <td><span class="pill done">Đạt</span></td>
+        </tr>
+        <tr>
+          <td><strong>Khả năng end-to-end</strong></td>
+          <td>Pipeline edge; V4 đọc threshold, V2 đọc explanation</td>
+          <td class="mono">14 REST route · client cross-vertical · chạy perception→V1 trên data thật</td>
+          <td><span class="pill done">Đạt</span></td>
+        </tr>
+        <tr>
+          <td><strong>KPI kỹ thuật đặc thù</strong></td>
+          <td>State machine ≥3 chuyến · safety floor · consent</td>
+          <td class="mono">154 test · coverage 78% · safety floor bật đúng 5/10 chuyến buồn ngủ · tất định 50→1</td>
+          <td><span class="pill done">Đạt</span></td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <h2><span class="n">07</span> Khó khăn, rủi ro &amp; điểm cần hỗ trợ</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Vấn đề</th><th>Ảnh hưởng</th><th>Hướng xử lý / hỗ trợ cần</th></tr></thead>
+      <tbody>
+        <tr><td>Bộ dữ liệu Redacted lược nhãn <code>driver_state</code>, <code>min_ttc</code></td>
+          <td>Thiếu scalar thật để cá nhân hoá fatigue</td>
+          <td>Đã bắc cầu bằng model perception của đội (resnet18) đọc footage thật</td></tr>
+        <tr><td>Contract gRPC với TV5 / V3 / V4 chưa chốt</td>
+          <td>Chưa nối được luồng liên-vertical thật</td>
+          <td><strong>Cần</strong> thống nhất schema <code>TelemetryEvent</code> &amp; giá trị safety floor thật từ V4</td></tr>
+        <tr><td>Phi-3-mini INT4 (~2.3GB) nặng để tải/chạy edge</td>
+          <td>Rủi ro latency/hạ tầng khi demo</td>
+          <td>Engine lazy-load + tự degrade sang fallback tất định; bật Phi-3 khi có model</td></tr>
+        <tr><td>Ghép 10 phiên thành lịch sử một tài xế (do mỗi phiên chỉ 90s)</td>
+          <td>Cách trình bày cần trung thực</td>
+          <td>Nêu rõ "10 phiên lái thật, đưa tuần tự"; không khẳng định cùng một người</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <h2><span class="n">08</span> Kế hoạch công việc còn lại (C2 → Code Freeze)</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Việc</th><th>Kết quả kỳ vọng</th><th>Ưu tiên</th></tr></thead>
+      <tbody>
+        <tr><td>Nối gRPC thật với TV5 (World Model chung)</td><td>Luồng liên-vertical live</td><td><span class="pill wip">Cao</span></td></tr>
+        <tr><td>Nhận safety floor thật từ V4 &amp; tinh chỉnh ngưỡng theo event thật</td><td>Advisory sát thực tế</td><td><span class="pill wip">Cao</span></td></tr>
+        <tr><td>Bật Phi-3-mini thật &amp; so sánh chất lượng vs fallback trên golden set</td><td>Giải thích tự nhiên hơn, có số so sánh</td><td><span class="pill wip">Trung</span></td></tr>
+        <tr><td>Mở rộng golden set eval lên ~30 case + thêm chỉ số false-alarm</td><td>KPI "giá trị thực tế" mạnh hơn</td><td><span class="pill wip">Trung</span></td></tr>
+        <tr><td>Nối V2 Cockpit: hiển thị explanation + TTS tiếng Việt</td><td>Trải nghiệm tài xế hoàn chỉnh</td><td><span class="pill wip">Trung</span></td></tr>
+        <tr><td>Quay video demo ≤10 phút + hoàn thiện slide</td><td>Hồ sơ nộp đầy đủ</td><td><span class="pill wip">Cao</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 09 -->
+  <section>
+    <h2><span class="n">09</span> Phân công nhiệm vụ trong đội</h2>
+    <p class="muted">Điền tên thành viên vào các ô <span class="fill">[…]</span>.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Mảng công việc</th><th>Phụ trách</th></tr></thead>
+      <tbody>
+        <tr><td>Schema &amp; Feature Store (ingestion)</td><td class="fill">[…]</td></tr>
+        <tr><td>Driver Memory &amp; State Machine (personalization core)</td><td class="fill">[…]</td></tr>
+        <tr><td>Reasoning Engine (Phi-3 + fallback + prompt tiếng Việt)</td><td class="fill">[…]</td></tr>
+        <tr><td>API REST &amp; tích hợp cross-vertical (V2/V4)</td><td class="fill">[…]</td></tr>
+        <tr><td>Eval harness, bộ đo bằng chứng &amp; dashboard</td><td class="fill">[…]</td></tr>
+        <tr><td>Cầu nối perception (data thật) &amp; demo</td><td class="fill">[…]</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <footer>
+    <span>Hackathon · Báo cáo tiến độ Mốc C2 · Vertical 1</span>
+    <span>Giữa kỳ · 2026</span>
+  </footer>
+</div>

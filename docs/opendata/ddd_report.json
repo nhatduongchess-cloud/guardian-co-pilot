@@ -1,0 +1,79 @@
+{
+  "dataset": {
+    "key": "ddd",
+    "repo_id": "akahana/Driver-Drowsiness-Dataset",
+    "split": "test",
+    "licence": "NOT DECLARED by the uploader - treat as research-use only",
+    "provenance": "Hugging Face: akahana/Driver-Drowsiness-Dataset. The dataset card cites https://doi.org/10.1007/978-981-33-6893-4_6 . 41,793 colour face crops at 227x227, split 33,434 train / 8,359 test.",
+    "notes": "Session-level labels: frames inherit the label of the driving session they came from, so a single 'drowsy' frame may show open eyes.",
+    "sampled": 1200,
+    "seed": 42
+  },
+  "summary": {
+    "frames_evaluated": 1200,
+    "faces_detected": 1200,
+    "face_detection_rate": 1.0,
+    "frames_without_face": 0,
+    "thresholds": {
+      "perclos_drowsy": 0.08,
+      "perclos_microsleep": 0.45,
+      "eye_blink_mean_drowsy": 0.12,
+      "jaw_yawn": 0.2,
+      "eye_closed_cut": 0.5
+    },
+    "per_class": {
+      "alert": {
+        "frames": 553,
+        "eye_blink": {
+          "n": 553,
+          "median": 0.1056,
+          "mean": 0.1264,
+          "p10": 0.0174,
+          "p90": 0.2484
+        },
+        "jaw_open": {
+          "n": 553,
+          "median": 0.0007,
+          "mean": 0.0281,
+          "p10": 0.0,
+          "p90": 0.1086
+        },
+        "closed_frame_rate": 0.0199,
+        "yawn_frame_rate": 0.0127
+      },
+      "drowsy": {
+        "frames": 647,
+        "eye_blink": {
+          "n": 647,
+          "median": 0.2351,
+          "mean": 0.2866,
+          "p10": 0.0932,
+          "p90": 0.6518
+        },
+        "jaw_open": {
+          "n": 647,
+          "median": 0.0006,
+          "mean": 0.0612,
+          "p10": 0.0,
+          "p90": 0.1643
+        },
+        "closed_frame_rate": 0.1592,
+        "yawn_frame_rate": 0.0912
+      }
+    },
+    "separation": {
+      "eye_blink_auc_drowsy_vs_alert": 0.7798,
+      "jaw_open_auc_drowsy_vs_alert": 0.4893
+    },
+    "perclos_check": {
+      "drowsy_closed_rate_above_perclos_threshold": true,
+      "alert_closed_rate_below_perclos_threshold": true,
+      "threshold_discriminates": true,
+      "drowsy_closed_rate_above_alert": true,
+      "margin_vs_threshold": 0.0792,
+      "alert_margin_vs_threshold": -0.0601,
+      "margin_vs_alert": 0.1393
+    }
+  },
+  "generated_at": "2026-09-13T23:00:38+00:00"
+}
