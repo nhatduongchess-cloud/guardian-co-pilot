@@ -56,6 +56,7 @@ from guardian.challenge2.classifier import build_temporal_features
 from guardian.challenge2.features import load_trip_features
 from guardian.challenge2.rules import RuleEngine
 from guardian.decision.planner import PlanningEngine
+from guardian.explain import explain
 from guardian.decision.safety_kernel import SafetyKernel, VerifiedCommand
 from guardian.world_model.state import (
     ContextState,
@@ -434,6 +435,15 @@ def compare_all(
 if __name__ == "__main__":
     import argparse
 
+    # The driver-facing explanations are Vietnamese by default, and a Windows
+    # console defaults to cp1252, which cannot encode "ổ". Without this the
+    # trace dies on the first tone mark instead of printing the explanation.
+    for _stream in (sys.stdout, sys.stderr):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):  # already UTF-8, or not a real TTY
+            pass
+
     parser = argparse.ArgumentParser(
         description="Run Guardian's decision chain on real trips."
     )
@@ -443,6 +453,8 @@ if __name__ == "__main__":
                         help="Print a frame-by-frame audit trail for one trip.")
     parser.add_argument("--trace-frames", type=int, default=6,
                         help="How many intervention frames to show with --trace.")
+    parser.add_argument("--lang", default="vi", choices=["vi", "en"],
+                        help="Language for the driver-facing explanation.")
     args = parser.parse_args()
 
     if args.trace:
@@ -456,6 +468,12 @@ if __name__ == "__main__":
             print(f"--- frame {world.frame_id}  t={world.timestamp:.2f}s ---")
             print(world.summary())
             print(command.audit_trail())
+            # The audit trail is for an engineer; this is what the driver hears.
+            explanation = explain(world, command, lang=args.lang)
+            print(f"  SAYS: {explanation.headline}")
+            for factor in explanation.factors:
+                print(f"        - {factor.text}")
+            print(f"  (explanation in {explanation.latency_ms:.2f} ms)")
             print()
             shown += 1
             if shown >= args.trace_frames:

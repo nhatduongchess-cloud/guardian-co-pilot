@@ -258,6 +258,28 @@ class SafetyKernel:
         if world.vehicle.speed_kmh < -1.0 or world.vehicle.speed_kmh > 400.0:
             problems.append(f"speed out of range ({world.vehicle.speed_kmh:.0f} km/h)")
 
+        # The scene's TTC is what every threshold below is compared against, and
+        # NaN loses every comparison SILENTLY: `nan < EMERGENCY_TTC_S` is False,
+        # so a broken perception frame would be indistinguishable from a clear
+        # road. Infinity is not a problem - it is the honest way to say "nothing
+        # ahead" - but NaN and negative time are both impossible worlds.
+        ttc = world.scene.min_ttc_s
+        if math.isnan(ttc):
+            problems.append("scene TTC is not a number (perception produced NaN)")
+        elif ttc < 0.0:
+            problems.append(f"scene TTC is negative ({ttc:.2f}s)")
+
+        for obj in world.scene.objects:
+            if math.isnan(obj.distance_m) or obj.distance_m < 0.0:
+                problems.append(
+                    f"object {obj.object_id} has an impossible distance "
+                    f"({obj.distance_m})"
+                )
+                break
+            if math.isnan(obj.ttc_s):
+                problems.append(f"object {obj.object_id} has a NaN TTC")
+                break
+
         # A driver state we do not recognise means the DMS pipeline is broken;
         # we must not silently treat an unknown driver as an attentive one.
         from guardian.world_model.state import DRIVER_REACTION_TIME_S

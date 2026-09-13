@@ -65,6 +65,10 @@ desktop.ini
 
 # --- Scratch from exploration sessions ---------------------------------------
 probe_*
+kscan.py
+demo_explain.py
+trace_*.txt
+vocab_dump.txt
 patch_*.py
 scan.py
 check_staged.py

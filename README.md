@@ -34,6 +34,8 @@ warning explainable.
 | **Driver state** | MediaPipe FaceLandmarker blendshapes → PERCLOS, closed-run, jaw → explainable rule engine | needs private footage |
 | **World model** | Fuses scene, driver, vehicle and context into one state per frame | needs private footage |
 | **Decision** | Planning engine proposes; a deterministic safety kernel verifies before anything reaches the vehicle | needs private footage |
+| **Explanation** | Turns one verified command into one sentence a driver can act on, in Vietnamese or English | ✅ **yes** |
+| **Learning loop** | Moves one driver's drowsiness threshold within hard safety bounds, from their own trip outcomes | ✅ **yes** |
 | **Open-data check** | Re-tests the shipped driver-state thresholds on public datasets | ✅ **yes** |
 
 > **On reproducibility.** This repository ships code, not footage. The
@@ -98,6 +100,74 @@ on them.
 
 ---
 
+## Saying why, in the driver's language
+
+A warning nobody understands is a warning people switch off. Every intervention
+carries one sentence explaining itself, built from the same verified command the
+vehicle acted on — so the explanation cannot drift from the decision.
+
+```
+COMMAND  brake 15.0%  assist_brake  [critical]  source=kernel
+  4. Comfort & Drivability   dampened   [20% -> 15%]  rate limited to 15%/frame
+
+  SAYS: Phanh hỗ trợ 15%: người đi bộ phía trước, cách 26,9 m, TTC 3,0 giây.
+        Guardian can thiệp sớm hơn bình thường vì tài xế buồn ngủ.
+        - Tài xế buồn ngủ — mắt nhắm trung bình 0,26, PERCLOS 14%.
+        - Cần khoảng 2,5 giây để tài xế phản ứng.
+        - Safety Kernel giảm mức can thiệp ở kiểm tra độ êm khi lái.
+  (explanation in 0.05 ms)
+```
+
+Three decisions in that output are load-bearing:
+
+- **It is templated, not generated.** The budget is 2 s; templates answer in
+  ~0.05 ms. A generative narrator can be attached (`narrator=`), is never on the
+  safety path, and if it throws, the templates answer anyway.
+- **Every user-visible string lives in `vocabulary.py`.** Adding a language is a
+  translation job, not a code change.
+- **Nothing English leaks into the Vietnamese.** The driver-state monitor writes
+  an English sentence for the audit log; interpolating it produced
+  *"Tài xế buồn ngủ — drowsy: average eye closure 0.26…"*. The evidence is now
+  rebuilt from the monitor's **numbers** in the target language, and a test
+  fails if an English fragment reappears.
+
+Run it yourself: `python -m guardian.pipeline --trace T01d --lang en`.
+
+## Learning one driver without unlearning safety
+
+Drivers are not identical, and a threshold tuned on a population annoys half of
+them. `guardian/learning/` moves one driver's PERCLOS threshold from their own
+trip outcomes — but the adjustment is deliberately **asymmetric and bounded**:
+
+| Rule | Effect on the threshold | Why |
+|---|---|---|
+| Loosen — driver dismissed ≥30% of alerts | **+0.005** / trip (more tolerant) | Slack is earned slowly |
+| Tighten — a real drowsy event was missed | **−0.02** / trip (more sensitive) | Taken back four times faster |
+| Hard floor / ceiling | clamped to **0.04 – 0.15** | The driver can never leave this band |
+
+A missed hazard outranks everything else in the trip: even if the same drive was
+full of nuisance alerts, the system was not sensitive enough where it counted,
+and comfort does not get a vote. The constructor **refuses to start** if
+tighten ≤ loosen.
+
+So a driver cannot train the car into silence. Fifty consecutive trips where
+every single alert is dismissed:
+
+```
+[t49] held at 0.150: false-alarm rate 100% but the safety ceiling is reached
+```
+
+and one genuine miss after that takes back four trips' worth of slack at once:
+
+```
+tightened 0.150 -> 0.130: 1 hazard(s) went unwarned
+```
+
+Every adjustment returns the sentence that justifies it — a personalisation
+nobody can explain is a personalisation nobody will sign off.
+
+---
+
 ## Quickstart
 
 ```bash
@@ -105,15 +175,36 @@ pip install -r requirements.txt
 
 # Runs standalone — no private data needed.
 python -m guardian.opendata.evaluate --dataset ddd --limit 1200
-python -m pytest guardian/opendata/tests/ -q
+python -m pytest guardian/ -q          # 68 tests, no dataset, no simulator
 ```
 
 To run the perception / decision pipelines you need your own trip footage:
 
 ```bash
 export GUARDIAN_DATA_ROOT=/path/to/your/data     # PowerShell: $env:GUARDIAN_DATA_ROOT=...
-python guardian/pipeline.py --trips T01 T02
+python -m guardian.pipeline --trips T01 T02
+python -m guardian.pipeline --trace T01 --lang en    # what the driver hears
 ```
+
+---
+
+## What is deliberately not built
+
+The design this grew out of describes a full in-vehicle product. What is here is
+the part that can be built and *tested* on a laptop; the rest needs a car.
+Listing it rather than implying it exists:
+
+| Not built | What it would need |
+|---|---|
+| AAOS / VHAL head-unit HMI | An Android Automotive target and vehicle HAL |
+| CAN-bus telemetry (real speed, steering, brake) | A vehicle or a CAN bench — speed is currently read from the trip data |
+| Battery state-of-health monitoring | Pack-level BMS access |
+| Spoken (TTS) delivery of the explanation | A voice engine; the text and its timing budget are done |
+| ONNX / Jetson latency numbers | The target board — current latencies are laptop CPU |
+| Fleet-wide learning across drivers | A fleet, and a privacy review before any of it leaves the car |
+
+The learning loop is also **single-driver and in-memory**: it demonstrates the
+bounded-adjustment policy, not a production profile store.
 
 ---
 
@@ -137,6 +228,19 @@ The findings I'd defend in a review, each measured rather than asserted:
    the one reported.
 5. **A threshold has to be tested on people it has never seen** — which is what
    `guardian/opendata/` is for, and how the `n7` limitation above surfaced.
+6. **NaN is not a value, it is a silent veto.** Writing the degraded-operation
+   tests turned up a real defect: the safety kernel validated speed, driver
+   state and staleness, but never the scene's time-to-collision. `NaN` loses
+   every comparison it takes part in, so a frame where perception had failed
+   looked *exactly* like clear road — and the car told the driver it "needs 2.7s
+   to stop but has nans". The kernel now rejects non-finite and negative TTC and
+   geometry outright. Invalid input has to be caught where it enters, because
+   downstream it is indistinguishable from safe.
+7. **A safety message in two languages at once is a safety message people stop
+   trusting.** The Vietnamese explanation was interpolating the monitor's
+   English audit sentence. Fixed by rebuilding the evidence from the numbers, in
+   whichever language is being spoken — and pinned by a test that fails on any
+   English fragment.
 
 ---
 
@@ -152,6 +256,10 @@ guardian/
 ├── challenge2/       driver state: blendshapes, rule engine, ML ablations
 ├── world_model/      per-frame fused state
 ├── decision/         planning engine + deterministic safety kernel
+├── explain/          ← runs standalone: verified command → one spoken sentence
+│   ├── vocabulary.py   every user-visible string, VI + EN
+│   └── explainer.py    templated Slow Path, optional generative narrator
+├── learning/         ← runs standalone: bounded per-driver threshold tuning
 ├── pipeline.py       end-to-end chain vs a fixed-threshold baseline
 └── demo/             HUD renderer + Streamlit dashboard
 docs/
