@@ -42,9 +42,24 @@ STATE_COLOURS: dict[str, str] = {
 }
 UNKNOWN_COLOUR = "#9AA0A8"
 
-_INK = "#17191C"
-_SUB = "#585D65"
-_LINE = "#D9D5CC"
+#: Chart furniture - text, traces, rules - is themed through CSS custom
+#: properties rather than fixed hex, because the same SVG is read on a light
+#: page and a dark one. The first version hardcoded near-black ink, which on a
+#: dark surface made the eye-closure trace and the chart title invisible.
+#:
+#: Delivered as a <style> block with classes rather than `fill="var(...)"`:
+#: var() inside an SVG presentation attribute is not reliably supported, while
+#: a stylesheet rule is. The fallbacks make a standalone .svg open correctly on
+#: its own, with no page to inherit from.
+_SVG_STYLE = (
+    "<style>"
+    ".gd-ink{fill:var(--chart-ink,#17191C)}"
+    ".gd-sub{fill:var(--chart-sub,#585D65)}"
+    ".gd-trace{fill:none;stroke:var(--chart-ink,#17191C)}"
+    ".gd-rule{stroke:var(--chart-ink,#17191C)}"
+    ".gd-axis{stroke:var(--chart-line,#D9D5CC)}"
+    "</style>"
+)
 
 
 def _colour(state: str) -> str:
@@ -98,14 +113,15 @@ def render_timeline(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
         f'width="100%" role="img" aria-label="Detection timeline for '
         f'{html.escape(result.trip_id)}" font-family="IBM Plex Sans, system-ui, sans-serif">'
+        + _SVG_STYLE
     ]
 
     recall = "-" if result.recall is None else f"{result.recall:.0%}"
     far = "-" if result.false_alarm_rate is None else f"{result.false_alarm_rate:.0%}"
     parts.append(
-        f'<text x="0" y="18" font-size="14" font-weight="600" fill="{_INK}">'
+        f'<text x="0" y="18" font-size="14" font-weight="600" class="gd-ink">'
         f'{html.escape(result.trip_id)}</text>'
-        f'<text x="{width}" y="18" font-size="11.5" text-anchor="end" fill="{_SUB}" '
+        f'<text x="{width}" y="18" font-size="11.5" text-anchor="end" class="gd-sub" '
         f'font-family="IBM Plex Mono, monospace">'
         f'recall {recall} &#183; false alarms {far} &#183; {duration:.0f}s</text>'
     )
@@ -118,7 +134,7 @@ def render_timeline(
     for label, segments in rows:
         parts.append(
             f'<text x="{pad_l - 12}" y="{y + strip_h * 0.68:.1f}" font-size="11.5" '
-            f'text-anchor="end" fill="{_SUB}">{label}</text>'
+            f'text-anchor="end" class="gd-sub">{label}</text>'
         )
         parts += _strip(segments, n, pad_l, y, plot_w, strip_h)
         y += strip_h + gap
@@ -135,7 +151,7 @@ def render_timeline(
             sw = max(plot_w * (length / n), 0.6)
             parts.append(
                 f'<rect x="{sx:.2f}" y="{pad_t - 5:.1f}" width="{sw:.2f}" height="3" '
-                f'fill="{_INK}" opacity="0.55"><title>disagreement</title></rect>'
+                f'class="gd-ink" opacity="0.55"><title>disagreement</title></rect>'
             )
 
     if eye_closure is not None:
@@ -149,14 +165,14 @@ def render_timeline(
 
         parts.append(
             f'<text x="{pad_l - 12}" y="{top + 12:.1f}" font-size="11.5" '
-            f'text-anchor="end" fill="{_SUB}">Eye closure</text>'
+            f'text-anchor="end" class="gd-sub">Eye closure</text>'
         )
         thr_y = py(perclos_threshold)
         parts.append(
             f'<line x1="{pad_l}" y1="{thr_y:.1f}" x2="{pad_l + plot_w}" y2="{thr_y:.1f}" '
-            f'stroke="{_INK}" stroke-width="1" stroke-dasharray="4 3" opacity="0.45"/>'
+            f'class="gd-rule" stroke-width="1" stroke-dasharray="4 3" opacity="0.45"/>'
             f'<text x="{pad_l + plot_w + 4}" y="{thr_y + 3.5:.1f}" font-size="9.5" '
-            f'fill="{_SUB}" font-family="IBM Plex Mono, monospace">'
+            f'class="gd-sub" font-family="IBM Plex Mono, monospace">'
             f'{perclos_threshold:.1f} closed</text>'
         )
         pts = []
@@ -166,8 +182,8 @@ def render_timeline(
             pts.append(f"{pad_l + plot_w * (i / n):.2f},{py(float(v)):.2f}")
         if pts:
             parts.append(
-                f'<polyline points="{" ".join(pts)}" fill="none" '
-                f'stroke="{_INK}" stroke-width="1.1" opacity="0.75"/>'
+                f'<polyline points="{" ".join(pts)}" '
+                f'class="gd-trace" stroke-width="1.1" opacity="0.75"/>'
             )
         y = top + trace_h
 
@@ -175,7 +191,7 @@ def render_timeline(
     axis_y = y + 20
     parts.append(
         f'<line x1="{pad_l}" y1="{axis_y - 8:.1f}" x2="{pad_l + plot_w}" '
-        f'y2="{axis_y - 8:.1f}" stroke="{_LINE}" stroke-width="1"/>'
+        f'y2="{axis_y - 8:.1f}" class="gd-axis" stroke-width="1"/>'
     )
     step = 5 if duration <= 40 else 10
     tick = 0.0
@@ -183,7 +199,7 @@ def render_timeline(
         tx = pad_l + plot_w * (tick / duration)
         parts.append(
             f'<text x="{tx:.2f}" y="{axis_y + 5:.1f}" font-size="10" '
-            f'text-anchor="middle" fill="{_SUB}" '
+            f'text-anchor="middle" class="gd-sub" '
             f'font-family="IBM Plex Mono, monospace">{tick:.0f}s</text>'
         )
         tick += step
@@ -204,12 +220,12 @@ def render_legend() -> str:
         mark = " (impaired)" if state in IMPAIRED_STATES else ""
         items.append(
             f'<rect x="{x}" y="4" width="11" height="11" rx="2" fill="{_colour(state)}"/>'
-            f'<text x="{x + 16}" y="14" font-size="11.5" fill="{_SUB}">'
+            f'<text x="{x + 16}" y="14" font-size="11.5" class="gd-sub">'
             f'{state}{mark}</text>'
         )
         x += 30 + (len(state) + len(mark)) * 6.6
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {int(x)} 20" '
         f'width="100%" font-family="IBM Plex Sans, system-ui, sans-serif" '
-        f'role="img" aria-label="State colour legend">{"".join(items)}</svg>'
+        f'role="img" aria-label="State colour legend">{_SVG_STYLE}{"".join(items)}</svg>'
     )

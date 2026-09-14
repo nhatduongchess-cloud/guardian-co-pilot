@@ -185,6 +185,20 @@ def test_timeline_refuses_an_empty_trip():
         render_timeline(result([], []))
 
 
+def test_chart_furniture_is_themed_not_hardcoded():
+    """
+    Regression: the first version painted text and traces in fixed near-black,
+    so on a dark page the eye-closure trace and the chart title were invisible.
+    Everything that is not a state colour must resolve through a CSS variable.
+    """
+    r = result(["drowsy"] * 20, ["drowsy"] * 20)
+    svg = render_timeline(r, eye_closure=[0.5] * 20)
+    for token in ("--chart-ink", "--chart-sub", "--chart-line"):
+        assert token in svg, f"{token} missing - chart will not follow the theme"
+    for hardcoded in ('fill="#17191C"', 'stroke="#17191C"', 'fill="#585D65"'):
+        assert hardcoded not in svg, f"{hardcoded} is not theme-aware"
+
+
 def test_timeline_never_embeds_driver_imagery():
     """
     The footage is licensed academic data. The chart must stay a drawing of

@@ -48,6 +48,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--fps", type=float, default=DEFAULT_FPS)
     parser.add_argument("--no-write", action="store_true",
                         help="Print the report without writing any files.")
+    parser.add_argument("--back-link", metavar="HREF", default=None,
+                        help="Add a return link, for publishing inside a larger site.")
+    parser.add_argument("--back-label", default="Back")
     args = parser.parse_args(argv)
 
     data_root = Path(args.data_root)
@@ -79,7 +82,11 @@ def main(argv: list[str] | None = None) -> int:
     (out / "report.json").write_text(
         json.dumps(summary.to_dict(), indent=2), encoding="utf-8"
     )
-    (out / "index.html").write_text(build_page(summary, charts), encoding="utf-8")
+    (out / "index.html").write_text(
+        build_page(summary, charts, back_href=args.back_link,
+                   back_label=args.back_label),
+        encoding="utf-8",
+    )
 
     print(f"\nWrote {len(charts)} timelines, report.json and index.html to {out}/")
     return 0
