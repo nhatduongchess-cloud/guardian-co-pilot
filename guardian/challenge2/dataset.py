@@ -34,12 +34,26 @@ import torch
 from torch.utils.data import Dataset
 
 
-# --- make the benchmark's dataset toolkit importable (see harness.py for the same) --
+# --- the benchmark's dataset toolkit is private and not in this repo ----------------
+# Imported lazily so that everything in here which does NOT need trip footage
+# (the label contract, the transforms) keeps working without it.
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _STARTERKIT = _PROJECT_ROOT / "starterkit"
-if str(_STARTERKIT) not in sys.path:
-    sys.path.insert(0, str(_STARTERKIT))
-from team_kit.dataset_loader import TripDataset  # noqa: E402
+
+
+def _trip_dataset_cls():
+    """Return team_kit's TripDataset, with a survivable error if it is absent."""
+    if str(_STARTERKIT) not in sys.path:
+        sys.path.insert(0, str(_STARTERKIT))
+    try:
+        from team_kit.dataset_loader import TripDataset
+    except ImportError as exc:  # pragma: no cover - depends on local checkout
+        raise ImportError(
+            "This function needs the private trip toolkit (starterkit/team_kit), "
+            "which is not distributed with this repository. The open-data "
+            "evaluation and the drowsiness demo do not require it."
+        ) from exc
+    return TripDataset
 
 
 # ===========================================================================
@@ -49,16 +63,14 @@ from team_kit.dataset_loader import TripDataset  # noqa: E402
 # submission). We freeze it here as a single source of truth. Never reorder:
 # a model trained with this order outputs logits in this order.
 # ---------------------------------------------------------------------------
-CLASS_NAMES: tuple[str, ...] = (
-    "alert",
-    "drowsy",
-    "yawning",
-    "distracted",
-    "microsleep",
+# The label contract lives in labels.py so it can be imported without torch,
+# OpenCV or the private trip toolkit. Re-exported here for existing callers.
+from guardian.challenge2.labels import (  # noqa: E402,F401
+    CLASS_NAMES,
+    CLASS_TO_IDX,
+    IDX_TO_CLASS,
+    NUM_CLASSES,
 )
-CLASS_TO_IDX: dict[str, int] = {name: i for i, name in enumerate(CLASS_NAMES)}
-IDX_TO_CLASS: dict[int, str] = {i: name for i, name in enumerate(CLASS_NAMES)}
-NUM_CLASSES = len(CLASS_NAMES)
 
 # ImageNet statistics — we fine-tune an ImageNet-pretrained backbone, so we
 # normalise inputs the same way that backbone was trained.
@@ -110,7 +122,7 @@ def build_driver_index(
 
     samples: list[DriverSample] = []
     for trip_id in trip_ids:
-        trip = TripDataset(data_root / trip_id)
+        trip = _trip_dataset_cls()(data_root / trip_id)
         for frame in trip.iter_frames():
             state = frame.driver_state
             if state not in CLASS_TO_IDX:

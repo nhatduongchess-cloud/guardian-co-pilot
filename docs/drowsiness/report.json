@@ -1,0 +1,295 @@
+{
+  "trips": [
+    {
+      "trip_id": "T01-Sample",
+      "n_frames": 600,
+      "fps": 20.0,
+      "accuracy": 0.925,
+      "macro_f1": 0.9441768427630379,
+      "composite": 93.4588421381519,
+      "impaired_frames": 0,
+      "impaired_caught": 0,
+      "recall": null,
+      "clear_frames": 600,
+      "false_alarms": 24,
+      "false_alarm_rate": 0.04,
+      "false_alarm_rate_after_warmup": 0.0,
+      "truth_segments": [
+        {
+          "state": "distracted",
+          "start_s": 0.0,
+          "duration_s": 15.0
+        },
+        {
+          "state": "alert",
+          "start_s": 15.0,
+          "duration_s": 15.0
+        }
+      ],
+      "predicted_segments": [
+        {
+          "state": "drowsy",
+          "start_s": 0.0,
+          "duration_s": 1.2
+        },
+        {
+          "state": "distracted",
+          "start_s": 1.2,
+          "duration_s": 14.85
+        },
+        {
+          "state": "alert",
+          "start_s": 16.05,
+          "duration_s": 13.95
+        }
+      ],
+      "transitions": [
+        {
+          "at_s": 15.0,
+          "from_state": "distracted",
+          "to_state": "alert",
+          "followed_after_s": 1.05
+        }
+      ]
+    },
+    {
+      "trip_id": "T02-Sample",
+      "n_frames": 600,
+      "fps": 20.0,
+      "accuracy": 0.9716666666666667,
+      "macro_f1": 0.9856297548605241,
+      "composite": 97.86482107635953,
+      "impaired_frames": 600,
+      "impaired_caught": 583,
+      "recall": 0.9716666666666667,
+      "clear_frames": 0,
+      "false_alarms": 0,
+      "false_alarm_rate": null,
+      "false_alarm_rate_after_warmup": null,
+      "truth_segments": [
+        {
+          "state": "drowsy",
+          "start_s": 0.0,
+          "duration_s": 30.0
+        }
+      ],
+      "predicted_segments": [
+        {
+          "state": "drowsy",
+          "start_s": 0.0,
+          "duration_s": 29.0
+        },
+        {
+          "state": "alert",
+          "start_s": 29.0,
+          "duration_s": 0.85
+        },
+        {
+          "state": "drowsy",
+          "start_s": 29.85,
+          "duration_s": 0.15
+        }
+      ],
+      "transitions": []
+    },
+    {
+      "trip_id": "T03-Sample",
+      "n_frames": 600,
+      "fps": 20.0,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "composite": 100.0,
+      "impaired_frames": 600,
+      "impaired_caught": 600,
+      "recall": 1.0,
+      "clear_frames": 0,
+      "false_alarms": 0,
+      "false_alarm_rate": null,
+      "false_alarm_rate_after_warmup": null,
+      "truth_segments": [
+        {
+          "state": "yawning",
+          "start_s": 0.0,
+          "duration_s": 30.0
+        }
+      ],
+      "predicted_segments": [
+        {
+          "state": "yawning",
+          "start_s": 0.0,
+          "duration_s": 30.0
+        }
+      ],
+      "transitions": []
+    },
+    {
+      "trip_id": "T04-Sample",
+      "n_frames": 600,
+      "fps": 20.0,
+      "accuracy": 0.6866666666666666,
+      "macro_f1": 0.741320985814178,
+      "composite": 71.39938262404223,
+      "impaired_frames": 0,
+      "impaired_caught": 0,
+      "recall": null,
+      "clear_frames": 600,
+      "false_alarms": 81,
+      "false_alarm_rate": 0.135,
+      "false_alarm_rate_after_warmup": 0.065,
+      "truth_segments": [
+        {
+          "state": "distracted",
+          "start_s": 0.0,
+          "duration_s": 15.0
+        },
+        {
+          "state": "alert",
+          "start_s": 15.0,
+          "duration_s": 15.0
+        }
+      ],
+      "predicted_segments": [
+        {
+          "state": "drowsy",
+          "start_s": 0.0,
+          "duration_s": 0.15
+        },
+        {
+          "state": "distracted",
+          "start_s": 0.15,
+          "duration_s": 6.4
+        },
+        {
+          "state": "yawning",
+          "start_s": 6.55,
+          "duration_s": 2.6
+        },
+        {
+          "state": "distracted",
+          "start_s": 9.15,
+          "duration_s": 3.55
+        },
+        {
+          "state": "yawning",
+          "start_s": 12.7,
+          "duration_s": 1.3
+        },
+        {
+          "state": "distracted",
+          "start_s": 14.0,
+          "duration_s": 2.05
+        },
+        {
+          "state": "alert",
+          "start_s": 16.05,
+          "duration_s": 9.65
+        },
+        {
+          "state": "distracted",
+          "start_s": 25.7,
+          "duration_s": 4.3
+        }
+      ],
+      "transitions": [
+        {
+          "at_s": 15.0,
+          "from_state": "distracted",
+          "to_state": "alert",
+          "followed_after_s": 1.05
+        }
+      ]
+    },
+    {
+      "trip_id": "T05-Sample",
+      "n_frames": 600,
+      "fps": 20.0,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "composite": 100.0,
+      "impaired_frames": 600,
+      "impaired_caught": 600,
+      "recall": 1.0,
+      "clear_frames": 0,
+      "false_alarms": 0,
+      "false_alarm_rate": null,
+      "false_alarm_rate_after_warmup": null,
+      "truth_segments": [
+        {
+          "state": "microsleep",
+          "start_s": 0.0,
+          "duration_s": 30.0
+        }
+      ],
+      "predicted_segments": [
+        {
+          "state": "microsleep",
+          "start_s": 0.0,
+          "duration_s": 30.0
+        }
+      ],
+      "transitions": []
+    },
+    {
+      "trip_id": "T06-Sample",
+      "n_frames": 600,
+      "fps": 20.0,
+      "accuracy": 0.93,
+      "macro_f1": 0.9296553110240177,
+      "composite": 92.98276555120088,
+      "impaired_frames": 300,
+      "impaired_caught": 300,
+      "recall": 1.0,
+      "clear_frames": 300,
+      "false_alarms": 42,
+      "false_alarm_rate": 0.14,
+      "false_alarm_rate_after_warmup": 0.14,
+      "truth_segments": [
+        {
+          "state": "drowsy",
+          "start_s": 0.0,
+          "duration_s": 15.0
+        },
+        {
+          "state": "distracted",
+          "start_s": 15.0,
+          "duration_s": 15.0
+        }
+      ],
+      "predicted_segments": [
+        {
+          "state": "drowsy",
+          "start_s": 0.0,
+          "duration_s": 17.1
+        },
+        {
+          "state": "distracted",
+          "start_s": 17.1,
+          "duration_s": 12.9
+        }
+      ],
+      "transitions": [
+        {
+          "at_s": 15.0,
+          "from_state": "drowsy",
+          "to_state": "distracted",
+          "followed_after_s": 2.1
+        }
+      ]
+    }
+  ],
+  "pooled": {
+    "impaired_frames": 2100,
+    "impaired_caught": 2083,
+    "recall": 0.991904761904762,
+    "clear_frames": 1500,
+    "false_alarms": 147,
+    "false_alarm_rate": 0.098,
+    "false_alarm_rate_after_warmup": 0.06181818181818182,
+    "mean_composite": 92.61763523162575,
+    "transition_lag_s": {
+      "n": 3,
+      "median": 1.05,
+      "max": 2.1
+    }
+  }
+}

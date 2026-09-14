@@ -34,6 +34,7 @@ warning explainable.
 | **Driver state** | MediaPipe FaceLandmarker blendshapes → PERCLOS, closed-run, jaw → explainable rule engine | needs private footage |
 | **World model** | Fuses scene, driver, vehicle and context into one state per frame | needs private footage |
 | **Decision** | Planning engine proposes; a deterministic safety kernel verifies before anything reaches the vehicle | needs private footage |
+| **Drowsiness demo** | Measures and draws the driver-state engine against labelled footage | result committed; rerun needs footage |
 | **Explanation** | Turns one verified command into one sentence a driver can act on, in Vietnamese or English | ✅ **yes** |
 | **Learning loop** | Moves one driver's drowsiness threshold within hard safety bounds, from their own trip outcomes | ✅ **yes** |
 | **Open-data check** | Re-tests the shipped driver-state thresholds on public datasets | ✅ **yes** |
@@ -97,6 +98,56 @@ Worth stating plainly — the best-provenanced source (`ddd`, which cites
 licence tag**, while the one tagged Apache-2.0 has an entirely empty dataset
 card. Treat both as research-use and verify before building anything commercial
 on them.
+
+---
+
+## Can it actually see a sleepy driver?
+
+That is the claim the whole system rests on, so it is measured rather than
+asserted. `guardian/drowsiness/` runs the shipped rule engine over **3,600
+labelled frames** — six drives at 20 fps, each carrying a per-frame ground-truth
+driver state — and reports the two numbers that matter together:
+
+| | |
+|---|---|
+| **Impairment caught** | **99.2%** — 2,083 of 2,100 frames where the driver really was drowsy, yawning or micro-sleeping |
+| **False alarms** | **9.8%** — 147 of 1,500 clear frames flagged anyway (**6.2%** once the 10 s PERCLOS window has filled) |
+| **Lag after a real state change** | median **1.05 s**, worst **2.10 s** |
+
+```bash
+python -m guardian.drowsiness.demo       # console report + docs/drowsiness/
+```
+
+That command needs the labelled footage, which is not mine to publish — so the
+**output is committed instead**, and you can read the result without it. Only the
+module's own 15 tests run from a clean checkout; they test the measurement
+(a recall that counts the wrong frames is worse than no recall), not the detector.
+
+It writes one SVG per drive — ground truth, what Guardian said, and the measured
+eyelid trace on a shared axis — plus `report.json` and a standalone
+`index.html`. **[Open the rendered demo →](docs/drowsiness/index.html)**
+
+Three things that page shows which a single accuracy number would hide:
+
+- **Sustained closure is the easy case, and it is the dangerous one.** The
+  micro-sleep and yawning drives are called correctly on *every frame*. Eyes
+  shut past 1.2 s is micro-sleep whether the driver is twenty or sixty — there
+  is nothing to train and nothing to overfit.
+- **The lag is bought, not accidental.** Output is a majority vote over ~2 s
+  because raw per-frame decisions flicker. That is exactly why the
+  drowsy → distracted change on `T06-Sample` takes 2.10 s to appear. Steadier
+  warnings cost response time, and the trade should be visible.
+- **`T04-Sample` is where it breaks.** On one driver whose eyes never close, the
+  jaw threshold fires anyway and produces stretches of phantom *yawning* — 81
+  false alarms in 600 clear frames. A resting mouth posture that reads as an
+  open jaw is a real failure mode, and a fixed global threshold has no answer to
+  it. That is the case the learning loop below exists for.
+
+**Six drivers is six independent samples.** These numbers show the thresholds
+fire on real physiology; they are not a population claim, which is what
+`guardian/opendata/` is for. Driver footage is licensed academic data
+(NTHU-DDD) and is never reproduced here — only the signals derived from it, and
+a test fails if an image ever appears in a rendered timeline.
 
 ---
 
@@ -175,7 +226,7 @@ pip install -r requirements.txt
 
 # Runs standalone — no private data needed.
 python -m guardian.opendata.evaluate --dataset ddd --limit 1200
-python -m pytest guardian/ -q          # 68 tests, no dataset, no simulator
+python -m pytest guardian/ -q          # 83 tests, no dataset, no simulator
 ```
 
 To run the perception / decision pipelines you need your own trip footage:
@@ -252,8 +303,13 @@ guardian/
 │   ├── sources.py      dataset registry (licence + provenance)
 │   ├── blendshapes.py  MediaPipe eye/jaw signals, no dataset coupling
 │   └── evaluate.py     distributions, ROC AUC, threshold verdict
+├── drowsiness/       ← does the engine actually see a sleepy driver? (evidence committed)
+│   ├── detect.py       recall, false alarms, response lag - measured
+│   ├── timeline.py     hand-written SVG: truth vs output vs eyelid trace
+│   └── demo.py         writes docs/drowsiness/
 ├── challenge1/       perception: detection, stereo depth, TTC
 ├── challenge2/       driver state: blendshapes, rule engine, ML ablations
+│   └── labels.py       the five-state label contract, importable on its own
 ├── world_model/      per-frame fused state
 ├── decision/         planning engine + deterministic safety kernel
 ├── explain/          ← runs standalone: verified command → one spoken sentence
@@ -263,6 +319,7 @@ guardian/
 ├── pipeline.py       end-to-end chain vs a fixed-threshold baseline
 └── demo/             HUD renderer + Streamlit dashboard
 docs/
+├── drowsiness/       generated demo: SVG timelines, report.json, index.html
 ├── opendata/         generated reports (committed as evidence)
 └── WRITEUP.md        approach, ablations, known issues
 ```

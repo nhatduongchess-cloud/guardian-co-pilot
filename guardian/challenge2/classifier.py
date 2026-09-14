@@ -37,6 +37,8 @@ invariant by construction, so they should transfer to unseen drivers.
 
 from __future__ import annotations
 
+import gzip
+import json
 import os
 import sys
 from dataclasses import asdict, dataclass, field
@@ -46,15 +48,10 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from guardian.challenge2.dataset import CLASS_NAMES
 from guardian.challenge2.features import FEATURES_DIR, load_trip_features
+from guardian.challenge2.labels import CLASS_NAMES  # noqa: F401
 
-# --- dataset toolkit (for ground-truth labels of the practice trips) ---------------
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
-_STARTERKIT = _PROJECT_ROOT / "starterkit"
-if str(_STARTERKIT) not in sys.path:
-    sys.path.insert(0, str(_STARTERKIT))
-from team_kit.dataset_loader import TripDataset  # noqa: E402
 
 
 DEFAULT_DATA_ROOT = Path(os.getenv("GUARDIAN_DATA_ROOT", r"C:/guardian_data"))
@@ -169,13 +166,34 @@ FEATURE_NAMES: Optional[list[str]] = None  # filled on first build
 
 
 def load_trip_labels(trip_id: str, data_root: Path = DEFAULT_DATA_ROOT) -> pd.Series:
-    """Ground-truth driver_state per frame (practice trips only)."""
-    trip = TripDataset(Path(data_root) / trip_id)
-    return pd.Series(
-        [f.driver_state for f in trip.iter_frames()],
-        index=[f.frame_id for f in trip.iter_frames()],
-        name="driver_state",
-    )
+    """
+    Ground-truth driver_state per frame (practice trips only).
+
+    Read straight out of the trip's own `<trip_id>.json.gz` rather than through
+    the private team_kit loader: the labels are four lines of JSON, and going
+    through the toolkit made every evaluation path depend on a toolkit most
+    people running this repo do not have. Frames with no driver annotation -
+    the scored trips are redacted - are skipped rather than guessed.
+    """
+    path = Path(data_root) / trip_id / f"{trip_id}.json.gz"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"No trip manifest at {path}. Set GUARDIAN_DATA_ROOT to the folder "
+            f"holding {trip_id}/."
+        )
+    with gzip.open(path, "rt", encoding="utf-8") as handle:
+        manifest = json.load(handle)
+
+    frame_ids: list[int] = []
+    states: list[str] = []
+    for frame in manifest.get("frames", []):
+        state = (frame.get("driver") or {}).get("state")
+        if state is None:
+            continue
+        frame_ids.append(int(frame["frame_id"]))
+        states.append(str(state))
+
+    return pd.Series(states, index=frame_ids, name="driver_state")
 
 
 def load_dataset(

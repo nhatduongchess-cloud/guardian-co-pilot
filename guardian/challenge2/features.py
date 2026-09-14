@@ -73,7 +73,23 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _STARTERKIT = _PROJECT_ROOT / "starterkit"
 if str(_STARTERKIT) not in sys.path:
     sys.path.insert(0, str(_STARTERKIT))
-from team_kit.dataset_loader import TripDataset  # noqa: E402
+
+
+def _trip_dataset_cls():
+    """team_kit's TripDataset, imported on use: extracting features needs the
+    private trip footage, but loading cached feature CSVs does not."""
+    if str(_STARTERKIT) not in sys.path:
+        sys.path.insert(0, str(_STARTERKIT))
+    try:
+        from team_kit.dataset_loader import TripDataset
+    except ImportError as exc:  # pragma: no cover
+        raise ImportError(
+            "Feature extraction needs the private trip toolkit "
+            "(starterkit/team_kit). Cached features in artifacts/features/ "
+            "load without it."
+        ) from exc
+    return TripDataset
+
 
 
 # ===========================================================================
@@ -313,7 +329,7 @@ class DriverFeatureExtractor:
         never break a 1800-frame run.
         """
         t0 = time.time()
-        trip = TripDataset(Path(data_root) / trip_id)
+        trip = _trip_dataset_cls()(Path(data_root) / trip_id)
 
         frame_ids: list[int] = []
         timestamps: list[float] = []
