@@ -50,7 +50,7 @@ A neural network cannot do that. This is a feature, not a consolation prize.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Optional
 
@@ -248,18 +248,262 @@ def evaluate_on_practice(
 
 
 # ===========================================================================
+# SECTION 3.5 — LEAVE-ONE-TRIP-OUT THRESHOLD SEARCH  (reproduces the 84.5)
+# ===========================================================================
+#
+# This is the function named in the module header and in
+# `evaluate_on_practice`'s docstring. It reproduces the honest generalisation
+# figure quoted for the rule engine.
+#
+# Protocol (the rule-engine analogue of `classifier.run_loto_cv`): for each
+# held-out trip, choose thresholds using ONLY the other five trips, then score
+# the held-out trip once with those thresholds. The mean of the six held-out
+# composites is the engine's generalisation to an *unseen driver*. Selection
+# never sees the trip it is scored on, so the number is not in-sample. Running
+# this on the practice set writes `artifacts/challenge2_loto_thresholds.json`,
+# which is the auditable evidence behind the headline score.
+
+
+_RULE_COLUMNS = (
+    "phone_rate_w61", "eb_mean_w201", "perclos_w201",
+    "closed_run_sec", "jaw_mean_w61",
+)
+
+#: Candidate values per threshold. Every list contains the shipped default, so
+#: a fold whose optimum *is* the default re-selects it. Kept small and
+#: physically sensible on purpose: this is a threshold audit, not a sweep.
+DEFAULT_SEARCH_GRID: dict[str, tuple[float, ...]] = {
+    "phone_rate":     (0.10, 0.15, 0.20, 0.25),
+    "eye_blink_mean": (0.08, 0.10, 0.12, 0.15, 0.18),
+    "perclos_drowsy": (0.05, 0.08, 0.10, 0.12),
+    "perclos_micro":  (0.35, 0.40, 0.45, 0.50, 0.55),
+    "closed_run_sec": (0.8, 1.0, 1.2, 1.5, 2.0),
+    "jaw_open":       (0.15, 0.20, 0.25, 0.30),
+}
+
+# Coordinate-ascent visits the fields in this order (most-decisive first).
+_FIELD_ORDER = (
+    "perclos_micro", "closed_run_sec", "perclos_drowsy",
+    "eye_blink_mean", "jaw_open", "phone_rate",
+)
+
+
+def _rule_labels(cols: dict, t: RuleThresholds) -> np.ndarray:
+    """Raw per-frame labels — identical precedence to ``RuleEngine.predict``,
+    without smoothing. A test pins these two against each other frame for
+    frame, so the search scores exactly the engine that ships."""
+    n = len(cols["perclos_w201"])
+    labels = np.full(n, "alert", dtype=object)
+    labels[cols["phone_rate_w61"] > t.phone_rate] = "distracted"
+    labels[(cols["eb_mean_w201"] > t.eye_blink_mean)
+           | (cols["perclos_w201"] > t.perclos_drowsy)] = "drowsy"
+    labels[(cols["perclos_w201"] > t.perclos_micro)
+           | (cols["closed_run_sec"] > t.closed_run_sec)] = "microsleep"
+    labels[cols["jaw_mean_w61"] > t.jaw_open] = "yawning"
+    return labels
+
+
+def majority_smooth(labels: np.ndarray,
+                    window: int = DEFAULT_SMOOTH_WINDOW) -> np.ndarray:
+    """
+    Vectorised majority-vote smoothing.
+
+    Produces exactly the same result as ``classifier.smooth_predictions`` — a
+    test pins this — but via cumulative sums, so a whole threshold search runs
+    in seconds instead of minutes. The tie-break is the alphabetically
+    smallest label, matching the reference (``np.unique`` is sorted).
+    """
+    if window <= 1:
+        return labels.copy()
+    n = len(labels)
+    classes = np.array(sorted(set(labels.tolist())), dtype=object)
+    half = window // 2
+    i = np.arange(n)
+    lo = np.maximum(0, i - half)
+    hi = np.minimum(n, i + half + 1)
+    counts = np.empty((len(classes), n), dtype=np.int64)
+    for k, cls in enumerate(classes):
+        cs = np.concatenate(([0], np.cumsum(labels == cls)))
+        counts[k] = cs[hi] - cs[lo]
+    return classes[counts.argmax(axis=0)]
+
+
+def _composite(cols: dict, y_true: np.ndarray,
+               t: RuleThresholds, smooth_window: int) -> float:
+    y_pred = majority_smooth(_rule_labels(cols, t), smooth_window)
+    return compute_metrics(y_true, y_pred)["composite"]
+
+
+@dataclass
+class FoldThresholds:
+    """One held-out fold: the thresholds chosen on the other trips, and how
+    they then scored on this trip."""
+    val_trip_id: str
+    thresholds: dict
+    train_composite: float
+    val_composite: float
+    matches_default: bool
+
+
+@dataclass
+class LotoSearchReport:
+    folds: list
+    mean_val_composite: float
+    n_selecting_default: int
+    grid: dict
+
+
+def _select_thresholds(train: list, grid: dict, smooth_window: int):
+    """Coordinate-ascent from the shipped defaults over the candidate grid,
+    maximising the mean composite across the training trips. Strict-improvement
+    only, so the default wins ties — which is why most folds keep it."""
+    best = RuleThresholds()
+
+    def mean_train(t: RuleThresholds) -> float:
+        return float(np.mean([_composite(c, y, t, smooth_window) for c, y in train]))
+
+    best_score = mean_train(best)
+    improved = True
+    while improved:
+        improved = False
+        for field in _FIELD_ORDER:
+            for cand in grid[field]:
+                trial = replace(best, **{field: cand})
+                score = mean_train(trial)
+                if score > best_score + 1e-9:
+                    best, best_score, improved = trial, score, True
+    return best, best_score
+
+
+def loto_threshold_search(
+    trip_ids: Optional[list[str]] = None,
+    data_root: Path = DEFAULT_DATA_ROOT,
+    features_dir: Path = FEATURES_DIR,
+    smooth_window: int = DEFAULT_SMOOTH_WINDOW,
+    grid: Optional[dict] = None,
+    trip_data: Optional[dict] = None,
+    verbose: bool = True,
+) -> LotoSearchReport:
+    """
+    Reproduce the honest LOTO generalisation score for the rule engine.
+
+    For each trip in turn: hold it out, pick thresholds on the *other* trips by
+    :func:`_select_thresholds`, then score the held-out trip once. The mean of
+    the held-out composites is the number that may be quoted as the engine's
+    generalisation to an unseen driver.
+
+    Args:
+        trip_ids:    trips to fold over (default: the six practice trips).
+        data_root:   folder holding ``<trip>/<trip>.json.gz`` ground truth.
+        features_dir: folder holding cached ``<trip>.csv`` features.
+        smooth_window: majority-vote window (defaults to the shipped value).
+        grid:        candidate thresholds per field (default DEFAULT_SEARCH_GRID).
+        trip_data:   ``{trip_id: (temporal_df, y_true)}`` to bypass disk. Used
+                     by the tests; leave ``None`` to load real trips.
+        verbose:     print the per-fold table.
+
+    Returns:
+        A :class:`LotoSearchReport`. ``mean_val_composite`` is the headline
+        generalisation figure.
+    """
+    grid = grid or DEFAULT_SEARCH_GRID
+
+    data: dict = {}
+    if trip_data is not None:
+        for tid, (temporal, y_true) in trip_data.items():
+            cols = {c: np.asarray(temporal[c], dtype=float) for c in _RULE_COLUMNS}
+            data[tid] = (cols, np.asarray(y_true, dtype=object))
+    else:
+        trip_ids = list(trip_ids) if trip_ids else list(PRACTICE_TRIP_IDS)
+        for tid in trip_ids:
+            temporal = build_temporal_features(load_trip_features(tid, features_dir))
+            y_true = load_trip_labels(tid, data_root).to_numpy()
+            if len(y_true) != len(temporal):
+                raise ValueError(
+                    f"{tid}: {len(temporal)} feature rows vs {len(y_true)} labels."
+                )
+            cols = {c: temporal[c].to_numpy() for c in _RULE_COLUMNS}
+            data[tid] = (cols, y_true)
+
+    if len(data) < 2:
+        raise ValueError("LOTO needs at least two trips.")
+
+    default = RuleThresholds()
+    folds: list[FoldThresholds] = []
+    for held_out in sorted(data):
+        train = [data[t] for t in sorted(data) if t != held_out]
+        chosen, train_score = _select_thresholds(train, grid, smooth_window)
+        cols, y_true = data[held_out]
+        val_score = _composite(cols, y_true, chosen, smooth_window)
+        folds.append(FoldThresholds(
+            val_trip_id=held_out,
+            thresholds=asdict(chosen),
+            train_composite=round(train_score, 2),
+            val_composite=round(val_score, 2),
+            matches_default=(chosen == default),
+        ))
+
+    mean_val = float(np.mean([f.val_composite for f in folds]))
+    report = LotoSearchReport(
+        folds=folds,
+        mean_val_composite=round(mean_val, 2),
+        n_selecting_default=sum(f.matches_default for f in folds),
+        grid={k: list(v) for k, v in grid.items()},
+    )
+    if verbose:
+        _print_loto_report(report)
+    return report
+
+
+def _print_loto_report(report: LotoSearchReport) -> None:
+    print("=" * 78)
+    print("CHALLENGE 2 - rule-engine LOTO threshold search (held-out per fold)")
+    print("=" * 78)
+    print(f"{'held-out trip':14s}{'train':>8s}{'val':>8s}   thresholds "
+          f"(only shown when they differ from default)")
+    print("-" * 78)
+    default = asdict(RuleThresholds())
+    for f in report.folds:
+        if f.matches_default:
+            note = "default"
+        else:
+            note = ", ".join(f"{k}={v}" for k, v in f.thresholds.items()
+                             if default[k] != v)
+        print(f"{f.val_trip_id:14s}{f.train_composite:>8.1f}"
+              f"{f.val_composite:>8.1f}   {note}")
+    print("-" * 78)
+    print(f"{'MEAN (honest LOTO generalisation)':30s}"
+          f"{report.mean_val_composite:>10.1f}")
+    print(f"folds that re-selected the shipped default: "
+          f"{report.n_selecting_default}/{len(report.folds)}")
+    print("=" * 78)
+
+
+# ===========================================================================
 # SECTION 4 — CLI
 # ===========================================================================
 if __name__ == "__main__":
     import argparse
+    import json
 
     parser = argparse.ArgumentParser(description="Driver-state rule engine.")
     parser.add_argument("--data-root", default=str(DEFAULT_DATA_ROOT))
     parser.add_argument("--explain", metavar="TRIP",
                         help="Show sample explanations for a trip.")
+    parser.add_argument("--loto", action="store_true",
+                        help="Reproduce the LOTO threshold search + honest "
+                             "generalisation score, and write the JSON report.")
+    parser.add_argument("--report",
+                        default="artifacts/challenge2_loto_thresholds.json")
     args = parser.parse_args()
 
-    if args.explain:
+    if args.loto:
+        report = loto_threshold_search(data_root=Path(args.data_root))
+        out = Path(args.report)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(asdict(report), indent=2), encoding="utf-8")
+        print(f"\nReport written to {out}")
+    elif args.explain:
         engine = RuleEngine()
         temporal = build_temporal_features(load_trip_features(args.explain))
         labels = engine.predict(temporal)
