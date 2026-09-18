@@ -99,6 +99,72 @@ licence tag**, while the one tagged Apache-2.0 has an entirely empty dataset
 card. Treat both as research-use and verify before building anything commercial
 on them.
 
+### Sixty drivers, and a clock
+
+The frame-level check above has a hole it cannot close: loose stills have no
+time axis, so they can confirm that eyelids separate the classes but they
+cannot score a rule that is *defined over a window*. And the headline claim —
+rules beat learned models across people — was made on six drivers, where a
+fitted model overfits by default. That objection deserved a real answer.
+
+`guardian/opendata/rldd.py` gets one, from the MIT-licensed blink-feature
+release published with [UTA-RLDD](https://github.com/rezaghoddoosian/Early-Drowsiness-Detection)
+(Ghoddoosian et al., CVPRW 2019): **60 participants**, each filmed alert, low
+vigilant and drowsy, reduced to per-blink features and — crucially — normalised
+against *each participant's own alert baseline*, which is the same idea
+Guardian's per-driver learning loop is built on. The authors ship it pre-split
+into five subject-disjoint folds, so the split was made by someone else before
+I arrived.
+
+```bash
+python -m guardian.opendata.temporal      # clones the release, writes docs/opendata/rldd_report.md
+```
+
+Four predictors, identical protocol: fit on four folds, score on the fifth,
+five times, never looking at the held-out drivers.
+
+| predictor | held-out macro-F1 | in-sample macro-F1 | overfit gap |
+|---|---:|---:|---:|
+| **rule** (4 thresholds) | **0.5095** | 0.5192 | **+0.0097** |
+| gradient boosting, *same five statistics* | 0.5089 | 0.9997 | +0.4908 |
+| logistic regression, raw 30×4 window | 0.4729 | 0.5392 | +0.0663 |
+| majority class | 0.2685 | 0.3018 | +0.0333 |
+
+**What that actually says**, and it is not the flattering version. At sixty
+drivers the rule no longer *crushes* the fitted models — it ties the boosted
+one to within 0.0006. What survives is the second column: the boosted model
+reaches that tie by memorising its training drivers almost perfectly
+(in-sample 0.9997), while four cut points have essentially nothing to overfit
+with. The six-driver claim "rules beat learning" is better stated as **"rules
+match learning at a fraction of the fragility"** — a weaker claim, and one that
+sixty strangers actually support. Four of the five folds also select the
+*identical* cut points, which is its own evidence: a threshold that moves every
+fold is fitting drivers, not states.
+
+Collapsed to the two states the cabin engine really ships, on 116 held-out
+sessions, the picture is less comfortable and is reported anyway:
+
+| predictor | recall on drowsy | false-alarm rate on alert |
+|---|---:|---:|
+| rule | 0.36 | **0.017** |
+| logistic regression | **0.55** | 0.052 |
+
+The rule sits at a quiet, insensitive operating point and logistic regression
+dominates it on that trade-off. Part of that is an objective mismatch — the cut
+points were chosen for three-class macro-F1, not for alarm recall — and part of
+it is simply the result: a macro-F1-tuned rule would stay silent through roughly
+two drowsy drives in three.
+
+Two limits that bound everything above. The front end here is dlib
+eye-aspect-ratio blink detection, **not** the MediaPipe blendshapes Guardian
+runs in the cabin, so the numeric thresholds found here are *not* transferable
+to `challenge2/rules.py` and are deliberately not copied into it — what
+transfers is the shape of the argument, not the constants. And the split's
+subject-disjointness cannot be confirmed directly, because the arrays carry no
+participant id; what `check_integrity()` does confirm, every run, is its
+necessary consequence — **zero** windows shared between any fold's train and
+test side, and **zero** shared between two folds' test sets.
+
 ---
 
 ## Can it actually see a sleepy driver?
@@ -300,6 +366,7 @@ The findings I'd defend in a review, each measured rather than asserted:
 ```
 guardian/
 ├── opendata/         ← runs standalone: thresholds vs public datasets
+│                     (frame-level: evaluate.py | 60-driver temporal: rldd.py + temporal.py)
 │   ├── sources.py      dataset registry (licence + provenance)
 │   ├── blendshapes.py  MediaPipe eye/jaw signals, no dataset coupling
 │   └── evaluate.py     distributions, ROC AUC, threshold verdict

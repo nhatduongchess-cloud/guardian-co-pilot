@@ -26,7 +26,7 @@
 4. FILE NOP BAI,T09d.csv,HOP LE,1800 dong,hazard 393 | near-miss 94 | state troi: drowsy
 4. FILE NOP BAI,T10d.csv,HOP LE,1800 dong,hazard 312 | near-miss 58 | state troi: drowsy
 5. DELIVERABLES,01 - 10 file CSV predictions,XONG,10/10 hop le,predictions/GuardianCoPilot/
-5. DELIVERABLES,02 - GitHub repository,CHUA,CHUA TAO,Can push public hoac private + invite BTC
+5. DELIVERABLES,02 - GitHub repository,XONG,github.com/nhatduongchess-cloud/guardian-co-pilot,Da tao va da push
 5. DELIVERABLES,02 - README.md,XONG,380 dong,"Song ngu, co kien truc + known issues"
 5. DELIVERABLES,02 - requirements.txt,XONG,51 dong,Kem canh bao cai torch ban CUDA
 5. DELIVERABLES,02 - .gitignore,XONG,50 dong,Chan commit dataset theo luat
@@ -41,7 +41,7 @@
 6. DOD CHECKLIST,4. Du 1 CSV moi trip (10 trip),DAT,,
 6. DOD CHECKLIST,5. Ten file dung quy uoc,DAT,,predictions/<team>/<trip>.csv
 6. DOD CHECKLIST,6. So dong khop 1800,DAT,,
-6. DOD CHECKLIST,7. GitHub repo,THIEU,,VIEC CAN LAM
+6. DOD CHECKLIST,7. GitHub repo,DAT,,github.com/nhatduongchess-cloud/guardian-co-pilot
 6. DOD CHECKLIST,8. README mo ta approach,DAT,,
 6. DOD CHECKLIST,9. requirements.txt,DAT,,
 6. DOD CHECKLIST,10. Khong commit dataset,DAT,,.gitignore
@@ -49,7 +49,7 @@
 6. DOD CHECKLIST,12. Ghi chu trien khai + known issues,DAT,,
 6. DOD CHECKLIST,13. Khong chia se dataset,DAT,,
 6. DOD CHECKLIST,14. Ghi ro nguon + license pretrained,DAT,,"YOLOv8 AGPL-3.0, MediaPipe Apache-2.0, torchvision BSD-3"
-6. DOD CHECKLIST,TONG KET,13/14,93%,Chi thieu GitHub repo
+6. DOD CHECKLIST,TONG KET,14/14,100%,Da du ca 14 muc
 7. PHAT HIEN KY THUAT,C2: Luat sinh ly thang deep learning,XONG,84.5 vs 18.5,CNN 18.5 -> GB 23.8 -> GB bat bien 43.7 -> Luat sinh ly 84.5
 7. PHAT HIEN KY THUAT,Nguyen nhan CNN that bai,XONG,chi 6 tai xe,600 frame/trip @20FPS gan trung nhau - model hoc thuoc khuon mat
 7. PHAT HIEN KY THUAT,C1: Dao nguoc cong thuc cham diem,XONG,GAP + cone 2.5m,walker 2.60 / bike 3.49 / vehicle 4.81 m
@@ -59,6 +59,11 @@
 7. PHAT HIEN KY THUAT,Da thu va BAC BO: imgsz 1280,BAC BO,13/19 -> 0/19,"Anh goc 640x360, phong to chi them nhieu noi suy"
 7. PHAT HIEN KY THUAT,Da thu va BAC BO: TTA augment,BAC BO,13/19 -> 9/19,
 7. PHAT HIEN KY THUAT,Da thu va BAC BO: YOLOv8m / v8l,BAC BO,12/19 vs v8s 13/19,Cham hon 2-3 lan ma khong tot hon
+7. PHAT HIEN KY THUAT,Kiem chung tren 60 tai xe (UTA-RLDD),XONG,rule 0.5095 vs GB 0.5089,"LOSO 5-fold cua tac gia. Macro-F1 held-out gan bang nhau"
+7. PHAT HIEN KY THUAT,Bang chung chong overfit,XONG,gap +0.0097 vs +0.4908,"GB dat in-sample 0.9997 - thuoc long 48 nguoi. Luat chi co 4 nguong nen khong co gi de thuoc"
+7. PHAT HIEN KY THUAT,On dinh nguong,XONG,4/5 fold trung nhau,"Nguong khong doi theo tai xe = dang do trang thai chu khong phai do nguoi"
+7. PHAT HIEN KY THUAT,DIEM YEU da do duoc,GHI NHAN,recall 0.36 / FA 0.017,"Tren 116 phien: luat im lang qua 2/3 chuyen buon ngu. Logistic 0.55 recall / 0.052 FA - tot hon o trade-off nay"
+7. PHAT HIEN KY THUAT,Kiem tra ro ri du lieu,DAT,0 cua so trung,"train/test va giua cac fold deu 0 - check_integrity() chay moi lan"
 8. RUI RO,Trien khai len CarSky/VDP,CHUA BAT DAU,CAO,Luat 3.7 bat buoc nop len VDP. Chua co tai khoan/API key
 8. RUI RO,Docker chua cai tren may,CHAN DUONG,CAO,Khong build duoc container CarSky
 8. RUI RO,Sample project AEB test bench,CHUA CO,CAO,BTC cap rieng kem tutorial - can xin mentor

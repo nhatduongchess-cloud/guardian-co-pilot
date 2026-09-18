@@ -1,0 +1,1430 @@
+{
+  "dataset": {
+    "name": "UTA-RLDD blink features (Ghoddoosian et al., CVPRW 2019)",
+    "url": "https://github.com/rezaghoddoosian/Early-Drowsiness-Detection.git",
+    "licence": "MIT (the authors' repository). The underlying UTA-RLDD video is released separately under its own agreement and is NOT used here - only the published per-blink features are read.",
+    "citation": "R. Ghoddoosian, M. Galib, V. Athitsos, 'A Realistic Dataset and Baseline Temporal Model for Early Drowsiness Detection', IEEE/CVF CVPR Workshops, 2019.",
+    "subjects": 60,
+    "normalisation": "Per-subject: each feature is standardised against the last third of that participant's own alert session.",
+    "caveats": [
+      "Labels are session-level. A window taken from a drowsy session is labelled drowsy even if the participant happened to be alert in that minute, so per-window scores are a floor, not a ceiling.",
+      "The front-end is dlib eye-aspect-ratio blink detection, not the MediaPipe blendshapes Guardian runs in the cabin. Conclusions here are about the METHOD - per-driver baselining plus threshold rules - and not about the specific numeric cut points shipped in challenge2/rules.py, which are defined on a different signal.",
+      "Windows overlap: consecutive windows share blinks, so the effective number of independent observations is smaller than the row count."
+    ],
+    "n_folds": 5,
+    "window_blinks": 30,
+    "features": [
+      "frequency",
+      "amplitude",
+      "duration",
+      "velocity"
+    ],
+    "total_held_out_windows": 8661,
+    "held_out_class_counts": {
+      "alert": 1648,
+      "low_vigilant": 3494,
+      "drowsy": 3519
+    },
+    "per_fold": [
+      {
+        "fold": 1,
+        "train_windows": 7379,
+        "test_windows": 1269,
+        "test_class_counts": {
+          "alert": 228,
+          "low_vigilant": 494,
+          "drowsy": 547
+        }
+      },
+      {
+        "fold": 2,
+        "train_windows": 6605,
+        "test_windows": 2043,
+        "test_class_counts": {
+          "alert": 465,
+          "low_vigilant": 835,
+          "drowsy": 743
+        }
+      },
+      {
+        "fold": 3,
+        "train_windows": 6465,
+        "test_windows": 2196,
+        "test_class_counts": {
+          "alert": 449,
+          "low_vigilant": 771,
+          "drowsy": 976
+        }
+      },
+      {
+        "fold": 4,
+        "train_windows": 7186,
+        "test_windows": 1462,
+        "test_class_counts": {
+          "alert": 211,
+          "low_vigilant": 584,
+          "drowsy": 667
+        }
+      },
+      {
+        "fold": 5,
+        "train_windows": 6957,
+        "test_windows": 1691,
+        "test_class_counts": {
+          "alert": 295,
+          "low_vigilant": 810,
+          "drowsy": 586
+        }
+      }
+    ]
+  },
+  "integrity": {
+    "train_test_overlap_per_fold": {
+      "fold1": 0,
+      "fold2": 0,
+      "fold3": 0,
+      "fold4": 0,
+      "fold5": 0
+    },
+    "windows_shared_between_test_folds": 0,
+    "leak_free": true
+  },
+  "folds": [
+    {
+      "fold": 1,
+      "n_train": 7379,
+      "n_test": 1269,
+      "n_test_videos": 33,
+      "thresholds": {
+        "duration_mean_drowsy": 1.2,
+        "duration_p90_micro": 3.0,
+        "duration_mean_low": 0.4,
+        "velocity_mean_low": -0.2
+      },
+      "held_out": {
+        "rule": {
+          "accuracy": 0.3247,
+          "macro_f1": 0.3271,
+          "per_class": {
+            "alert": {
+              "support": 228,
+              "recall": 0.7237
+            },
+            "low_vigilant": {
+              "support": 494,
+              "recall": 0.3259
+            },
+            "drowsy": {
+              "support": 547,
+              "recall": 0.1572
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.3759,
+          "macro_f1": 0.399,
+          "per_class": {
+            "alert": {
+              "support": 228,
+              "recall": 0.8904
+            },
+            "low_vigilant": {
+              "support": 494,
+              "recall": 0.2733
+            },
+            "drowsy": {
+              "support": 547,
+              "recall": 0.2541
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.383,
+          "macro_f1": 0.3952,
+          "per_class": {
+            "alert": {
+              "support": 228,
+              "recall": 0.5658
+            },
+            "low_vigilant": {
+              "support": 494,
+              "recall": 0.504
+            },
+            "drowsy": {
+              "support": 547,
+              "recall": 0.1974
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3893,
+          "macro_f1": 0.1868,
+          "per_class": {
+            "alert": {
+              "support": 228,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 494,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 547,
+              "recall": 0.0
+            }
+          }
+        }
+      },
+      "held_out_per_video": {
+        "rule": {
+          "accuracy": 0.4848,
+          "macro_f1": 0.469,
+          "per_class": {
+            "alert": {
+              "support": 11,
+              "recall": 0.7273
+            },
+            "low_vigilant": {
+              "support": 11,
+              "recall": 0.4545
+            },
+            "drowsy": {
+              "support": 11,
+              "recall": 0.2727
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.4242,
+          "macro_f1": 0.3897,
+          "per_class": {
+            "alert": {
+              "support": 11,
+              "recall": 0.9091
+            },
+            "low_vigilant": {
+              "support": 11,
+              "recall": 0.1818
+            },
+            "drowsy": {
+              "support": 11,
+              "recall": 0.1818
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.4242,
+          "macro_f1": 0.4254,
+          "per_class": {
+            "alert": {
+              "support": 11,
+              "recall": 0.4545
+            },
+            "low_vigilant": {
+              "support": 11,
+              "recall": 0.5455
+            },
+            "drowsy": {
+              "support": 11,
+              "recall": 0.2727
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3333,
+          "macro_f1": 0.1667,
+          "per_class": {
+            "alert": {
+              "support": 11,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 11,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 11,
+              "recall": 0.0
+            }
+          }
+        }
+      },
+      "in_sample": {
+        "rule": {
+          "accuracy": 0.5419,
+          "macro_f1": 0.5487,
+          "per_class": {
+            "alert": {
+              "support": 1419,
+              "recall": 0.6801
+            },
+            "low_vigilant": {
+              "support": 2994,
+              "recall": 0.5808
+            },
+            "drowsy": {
+              "support": 2966,
+              "recall": 0.4366
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.9997,
+          "macro_f1": 0.9998,
+          "per_class": {
+            "alert": {
+              "support": 1419,
+              "recall": 1.0
+            },
+            "low_vigilant": {
+              "support": 2994,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 2966,
+              "recall": 0.9993
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5715,
+          "macro_f1": 0.5547,
+          "per_class": {
+            "alert": {
+              "support": 1419,
+              "recall": 0.4341
+            },
+            "low_vigilant": {
+              "support": 2994,
+              "recall": 0.6276
+            },
+            "drowsy": {
+              "support": 2966,
+              "recall": 0.5806
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.4057,
+          "macro_f1": 0.1924,
+          "per_class": {
+            "alert": {
+              "support": 1419,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 2994,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 2966,
+              "recall": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "n_train": 6605,
+      "n_test": 2043,
+      "n_test_videos": 36,
+      "thresholds": {
+        "duration_mean_drowsy": 1.2,
+        "duration_p90_micro": 3.0,
+        "duration_mean_low": 0.4,
+        "velocity_mean_low": -0.2
+      },
+      "held_out": {
+        "rule": {
+          "accuracy": 0.5257,
+          "macro_f1": 0.5339,
+          "per_class": {
+            "alert": {
+              "support": 465,
+              "recall": 0.6731
+            },
+            "low_vigilant": {
+              "support": 835,
+              "recall": 0.5449
+            },
+            "drowsy": {
+              "support": 743,
+              "recall": 0.4118
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.5761,
+          "macro_f1": 0.5749,
+          "per_class": {
+            "alert": {
+              "support": 465,
+              "recall": 0.5247
+            },
+            "low_vigilant": {
+              "support": 835,
+              "recall": 0.4659
+            },
+            "drowsy": {
+              "support": 743,
+              "recall": 0.7322
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5223,
+          "macro_f1": 0.512,
+          "per_class": {
+            "alert": {
+              "support": 465,
+              "recall": 0.486
+            },
+            "low_vigilant": {
+              "support": 835,
+              "recall": 0.3964
+            },
+            "drowsy": {
+              "support": 743,
+              "recall": 0.6864
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3637,
+          "macro_f1": 0.1778,
+          "per_class": {
+            "alert": {
+              "support": 465,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 835,
+              "recall": 0.0
+            },
+            "drowsy": {
+              "support": 743,
+              "recall": 1.0
+            }
+          }
+        }
+      },
+      "held_out_per_video": {
+        "rule": {
+          "accuracy": 0.5,
+          "macro_f1": 0.4895,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.5833
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.6667
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.25
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.5278,
+          "macro_f1": 0.5288,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.5
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.4167
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.6667
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5278,
+          "macro_f1": 0.5159,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.4167
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.3333
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.8333
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3333,
+          "macro_f1": 0.1667,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.0
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 1.0
+            }
+          }
+        }
+      },
+      "in_sample": {
+        "rule": {
+          "accuracy": 0.5052,
+          "macro_f1": 0.5104,
+          "per_class": {
+            "alert": {
+              "support": 1182,
+              "recall": 0.6912
+            },
+            "low_vigilant": {
+              "support": 2653,
+              "recall": 0.5447
+            },
+            "drowsy": {
+              "support": 2770,
+              "recall": 0.3881
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.9997,
+          "macro_f1": 0.9998,
+          "per_class": {
+            "alert": {
+              "support": 1182,
+              "recall": 1.0
+            },
+            "low_vigilant": {
+              "support": 2653,
+              "recall": 0.9996
+            },
+            "drowsy": {
+              "support": 2770,
+              "recall": 0.9996
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5308,
+          "macro_f1": 0.5202,
+          "per_class": {
+            "alert": {
+              "support": 1182,
+              "recall": 0.4492
+            },
+            "low_vigilant": {
+              "support": 2653,
+              "recall": 0.5631
+            },
+            "drowsy": {
+              "support": 2770,
+              "recall": 0.5347
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.4194,
+          "macro_f1": 0.197,
+          "per_class": {
+            "alert": {
+              "support": 1182,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 2653,
+              "recall": 0.0
+            },
+            "drowsy": {
+              "support": 2770,
+              "recall": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "fold": 3,
+      "n_train": 6465,
+      "n_test": 2196,
+      "n_test_videos": 36,
+      "thresholds": {
+        "duration_mean_drowsy": 0.8,
+        "duration_p90_micro": 2.0,
+        "duration_mean_low": 0.4,
+        "velocity_mean_low": -0.2
+      },
+      "held_out": {
+        "rule": {
+          "accuracy": 0.6516,
+          "macro_f1": 0.6357,
+          "per_class": {
+            "alert": {
+              "support": 449,
+              "recall": 0.8396
+            },
+            "low_vigilant": {
+              "support": 771,
+              "recall": 0.3437
+            },
+            "drowsy": {
+              "support": 976,
+              "recall": 0.8084
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.5351,
+          "macro_f1": 0.526,
+          "per_class": {
+            "alert": {
+              "support": 449,
+              "recall": 0.6927
+            },
+            "low_vigilant": {
+              "support": 771,
+              "recall": 0.3152
+            },
+            "drowsy": {
+              "support": 976,
+              "recall": 0.6363
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.4608,
+          "macro_f1": 0.4589,
+          "per_class": {
+            "alert": {
+              "support": 449,
+              "recall": 0.6013
+            },
+            "low_vigilant": {
+              "support": 771,
+              "recall": 0.4267
+            },
+            "drowsy": {
+              "support": 976,
+              "recall": 0.4232
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3511,
+          "macro_f1": 0.1732,
+          "per_class": {
+            "alert": {
+              "support": 449,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 771,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 976,
+              "recall": 0.0
+            }
+          }
+        }
+      },
+      "held_out_per_video": {
+        "rule": {
+          "accuracy": 0.5556,
+          "macro_f1": 0.5541,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.6667
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.3333
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.6667
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.3611,
+          "macro_f1": 0.3547,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.5833
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.25
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.25
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.4444,
+          "macro_f1": 0.4489,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.4167
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.4167
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.5
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3333,
+          "macro_f1": 0.1667,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.0
+            }
+          }
+        }
+      },
+      "in_sample": {
+        "rule": {
+          "accuracy": 0.4575,
+          "macro_f1": 0.4651,
+          "per_class": {
+            "alert": {
+              "support": 1199,
+              "recall": 0.6272
+            },
+            "low_vigilant": {
+              "support": 2723,
+              "recall": 0.3393
+            },
+            "drowsy": {
+              "support": 2543,
+              "recall": 0.5041
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.9998,
+          "macro_f1": 0.9999,
+          "per_class": {
+            "alert": {
+              "support": 1199,
+              "recall": 1.0
+            },
+            "low_vigilant": {
+              "support": 2723,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 2543,
+              "recall": 0.9996
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5663,
+          "macro_f1": 0.568,
+          "per_class": {
+            "alert": {
+              "support": 1199,
+              "recall": 0.5796
+            },
+            "low_vigilant": {
+              "support": 2723,
+              "recall": 0.5637
+            },
+            "drowsy": {
+              "support": 2543,
+              "recall": 0.5627
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.4212,
+          "macro_f1": 0.1976,
+          "per_class": {
+            "alert": {
+              "support": 1199,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 2723,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 2543,
+              "recall": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "fold": 4,
+      "n_train": 7186,
+      "n_test": 1462,
+      "n_test_videos": 36,
+      "thresholds": {
+        "duration_mean_drowsy": 1.2,
+        "duration_p90_micro": 3.0,
+        "duration_mean_low": 0.4,
+        "velocity_mean_low": -0.2
+      },
+      "held_out": {
+        "rule": {
+          "accuracy": 0.4973,
+          "macro_f1": 0.4922,
+          "per_class": {
+            "alert": {
+              "support": 211,
+              "recall": 0.5877
+            },
+            "low_vigilant": {
+              "support": 584,
+              "recall": 0.7226
+            },
+            "drowsy": {
+              "support": 667,
+              "recall": 0.2714
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.4419,
+          "macro_f1": 0.445,
+          "per_class": {
+            "alert": {
+              "support": 211,
+              "recall": 0.4408
+            },
+            "low_vigilant": {
+              "support": 584,
+              "recall": 0.3955
+            },
+            "drowsy": {
+              "support": 667,
+              "recall": 0.4828
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5609,
+          "macro_f1": 0.5558,
+          "per_class": {
+            "alert": {
+              "support": 211,
+              "recall": 0.4882
+            },
+            "low_vigilant": {
+              "support": 584,
+              "recall": 0.6592
+            },
+            "drowsy": {
+              "support": 667,
+              "recall": 0.4978
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3995,
+          "macro_f1": 0.1903,
+          "per_class": {
+            "alert": {
+              "support": 211,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 584,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 667,
+              "recall": 0.0
+            }
+          }
+        }
+      },
+      "held_out_per_video": {
+        "rule": {
+          "accuracy": 0.5278,
+          "macro_f1": 0.5238,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.5
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.75
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.3333
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.4722,
+          "macro_f1": 0.4788,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.5833
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.3333
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.5
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5833,
+          "macro_f1": 0.5923,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.5
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 0.75
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.5
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3333,
+          "macro_f1": 0.1667,
+          "per_class": {
+            "alert": {
+              "support": 12,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 12,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 12,
+              "recall": 0.0
+            }
+          }
+        }
+      },
+      "in_sample": {
+        "rule": {
+          "accuracy": 0.5127,
+          "macro_f1": 0.5192,
+          "per_class": {
+            "alert": {
+              "support": 1436,
+              "recall": 0.7006
+            },
+            "low_vigilant": {
+              "support": 2904,
+              "recall": 0.509
+            },
+            "drowsy": {
+              "support": 2846,
+              "recall": 0.4216
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.9992,
+          "macro_f1": 0.9992,
+          "per_class": {
+            "alert": {
+              "support": 1436,
+              "recall": 1.0
+            },
+            "low_vigilant": {
+              "support": 2904,
+              "recall": 0.9983
+            },
+            "drowsy": {
+              "support": 2846,
+              "recall": 0.9996
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5214,
+          "macro_f1": 0.5122,
+          "per_class": {
+            "alert": {
+              "support": 1436,
+              "recall": 0.4492
+            },
+            "low_vigilant": {
+              "support": 2904,
+              "recall": 0.5902
+            },
+            "drowsy": {
+              "support": 2846,
+              "recall": 0.4877
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.4041,
+          "macro_f1": 0.1919,
+          "per_class": {
+            "alert": {
+              "support": 1436,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 2904,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 2846,
+              "recall": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "fold": 5,
+      "n_train": 6957,
+      "n_test": 1691,
+      "n_test_videos": 33,
+      "thresholds": {
+        "duration_mean_drowsy": 1.2,
+        "duration_p90_micro": 3.0,
+        "duration_mean_low": 0.4,
+        "velocity_mean_low": -0.2
+      },
+      "held_out": {
+        "rule": {
+          "accuracy": 0.408,
+          "macro_f1": 0.4017,
+          "per_class": {
+            "alert": {
+              "support": 295,
+              "recall": 0.5119
+            },
+            "low_vigilant": {
+              "support": 810,
+              "recall": 0.4383
+            },
+            "drowsy": {
+              "support": 586,
+              "recall": 0.314
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.4897,
+          "macro_f1": 0.5045,
+          "per_class": {
+            "alert": {
+              "support": 295,
+              "recall": 0.5254
+            },
+            "low_vigilant": {
+              "support": 810,
+              "recall": 0.5333
+            },
+            "drowsy": {
+              "support": 586,
+              "recall": 0.4113
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.4524,
+          "macro_f1": 0.411,
+          "per_class": {
+            "alert": {
+              "support": 295,
+              "recall": 0.2203
+            },
+            "low_vigilant": {
+              "support": 810,
+              "recall": 0.4593
+            },
+            "drowsy": {
+              "support": 586,
+              "recall": 0.5597
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3465,
+          "macro_f1": 0.1716,
+          "per_class": {
+            "alert": {
+              "support": 295,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 810,
+              "recall": 0.0
+            },
+            "drowsy": {
+              "support": 586,
+              "recall": 1.0
+            }
+          }
+        }
+      },
+      "held_out_per_video": {
+        "rule": {
+          "accuracy": 0.4848,
+          "macro_f1": 0.4794,
+          "per_class": {
+            "alert": {
+              "support": 11,
+              "recall": 0.5455
+            },
+            "low_vigilant": {
+              "support": 11,
+              "recall": 0.6364
+            },
+            "drowsy": {
+              "support": 11,
+              "recall": 0.2727
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.4545,
+          "macro_f1": 0.454,
+          "per_class": {
+            "alert": {
+              "support": 11,
+              "recall": 0.5455
+            },
+            "low_vigilant": {
+              "support": 11,
+              "recall": 0.5455
+            },
+            "drowsy": {
+              "support": 11,
+              "recall": 0.2727
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5455,
+          "macro_f1": 0.5515,
+          "per_class": {
+            "alert": {
+              "support": 11,
+              "recall": 0.4545
+            },
+            "low_vigilant": {
+              "support": 11,
+              "recall": 0.5455
+            },
+            "drowsy": {
+              "support": 11,
+              "recall": 0.6364
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.3333,
+          "macro_f1": 0.1667,
+          "per_class": {
+            "alert": {
+              "support": 11,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 11,
+              "recall": 0.0
+            },
+            "drowsy": {
+              "support": 11,
+              "recall": 1.0
+            }
+          }
+        }
+      },
+      "in_sample": {
+        "rule": {
+          "accuracy": 0.5349,
+          "macro_f1": 0.5424,
+          "per_class": {
+            "alert": {
+              "support": 1352,
+              "recall": 0.7241
+            },
+            "low_vigilant": {
+              "support": 2678,
+              "recall": 0.5769
+            },
+            "drowsy": {
+              "support": 2927,
+              "recall": 0.409
+            }
+          }
+        },
+        "boosted_on_stats": {
+          "accuracy": 0.9999,
+          "macro_f1": 0.9999,
+          "per_class": {
+            "alert": {
+              "support": 1352,
+              "recall": 1.0
+            },
+            "low_vigilant": {
+              "support": 2678,
+              "recall": 1.0
+            },
+            "drowsy": {
+              "support": 2927,
+              "recall": 0.9997
+            }
+          }
+        },
+        "logistic_on_window": {
+          "accuracy": 0.5386,
+          "macro_f1": 0.5392,
+          "per_class": {
+            "alert": {
+              "support": 1352,
+              "recall": 0.5385
+            },
+            "low_vigilant": {
+              "support": 2678,
+              "recall": 0.5485
+            },
+            "drowsy": {
+              "support": 2927,
+              "recall": 0.5296
+            }
+          }
+        },
+        "majority": {
+          "accuracy": 0.4207,
+          "macro_f1": 0.1974,
+          "per_class": {
+            "alert": {
+              "support": 1352,
+              "recall": 0.0
+            },
+            "low_vigilant": {
+              "support": 2678,
+              "recall": 0.0
+            },
+            "drowsy": {
+              "support": 2927,
+              "recall": 1.0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "rule": {
+      "held_out_accuracy": 0.5004,
+      "held_out_macro_f1": 0.5095,
+      "held_out_per_class_recall": {
+        "alert": 0.6857,
+        "low_vigilant": 0.4745,
+        "drowsy": 0.4393
+      },
+      "in_sample_macro_f1": 0.5192,
+      "overfit_gap": 0.0097
+    },
+    "boosted_on_stats": {
+      "held_out_accuracy": 0.4968,
+      "held_out_macro_f1": 0.5089,
+      "held_out_per_class_recall": {
+        "alert": 0.6104,
+        "low_vigilant": 0.4093,
+        "drowsy": 0.5305
+      },
+      "in_sample_macro_f1": 0.9997,
+      "overfit_gap": 0.4908
+    },
+    "logistic_on_window": {
+      "held_out_accuracy": 0.4792,
+      "held_out_macro_f1": 0.4729,
+      "held_out_per_class_recall": {
+        "alert": 0.4812,
+        "low_vigilant": 0.4768,
+        "drowsy": 0.4805
+      },
+      "in_sample_macro_f1": 0.5392,
+      "overfit_gap": 0.0663
+    },
+    "majority": {
+      "held_out_accuracy": 0.3669,
+      "held_out_macro_f1": 0.2685,
+      "held_out_per_class_recall": {
+        "alert": 0.0,
+        "low_vigilant": 0.5292,
+        "drowsy": 0.3777
+      },
+      "in_sample_macro_f1": 0.3018,
+      "overfit_gap": 0.0333
+    }
+  },
+  "aggregate_per_video": {
+    "rule": {
+      "videos": 174,
+      "accuracy": 0.5115,
+      "macro_f1": 0.5125,
+      "per_class_recall": {
+        "alert": 0.6034,
+        "low_vigilant": 0.569,
+        "drowsy": 0.3621
+      }
+    },
+    "boosted_on_stats": {
+      "videos": 174,
+      "accuracy": 0.4483,
+      "macro_f1": 0.4505,
+      "per_class_recall": {
+        "alert": 0.6207,
+        "low_vigilant": 0.3448,
+        "drowsy": 0.3793
+      }
+    },
+    "logistic_on_window": {
+      "videos": 174,
+      "accuracy": 0.5057,
+      "macro_f1": 0.5139,
+      "per_class_recall": {
+        "alert": 0.4483,
+        "low_vigilant": 0.5172,
+        "drowsy": 0.5517
+      }
+    },
+    "majority": {
+      "videos": 174,
+      "accuracy": 0.3333,
+      "macro_f1": 0.2639,
+      "per_class_recall": {
+        "alert": 0.0,
+        "low_vigilant": 0.6034,
+        "drowsy": 0.3966
+      }
+    }
+  },
+  "alarm": {
+    "rule": {
+      "sessions": 116,
+      "drowsy_caught": 21,
+      "drowsy_missed": 37,
+      "recall_on_drowsy": 0.3621,
+      "false_alarms_on_alert": 1,
+      "false_alarm_rate": 0.0172
+    },
+    "boosted_on_stats": {
+      "sessions": 116,
+      "drowsy_caught": 22,
+      "drowsy_missed": 36,
+      "recall_on_drowsy": 0.3793,
+      "false_alarms_on_alert": 9,
+      "false_alarm_rate": 0.1552
+    },
+    "logistic_on_window": {
+      "sessions": 116,
+      "drowsy_caught": 32,
+      "drowsy_missed": 26,
+      "recall_on_drowsy": 0.5517,
+      "false_alarms_on_alert": 3,
+      "false_alarm_rate": 0.0517
+    },
+    "majority": {
+      "sessions": 116,
+      "drowsy_caught": 23,
+      "drowsy_missed": 35,
+      "recall_on_drowsy": 0.3966,
+      "false_alarms_on_alert": 23,
+      "false_alarm_rate": 0.3966
+    }
+  },
+  "separation": {
+    "duration_mean": {
+      "auc_drowsy_vs_alert": 0.7676,
+      "direction": "higher when drowsy",
+      "separation": 0.7676,
+      "alert_median": 0.0369,
+      "drowsy_median": 0.6629
+    },
+    "duration_p90": {
+      "auc_drowsy_vs_alert": 0.81,
+      "direction": "higher when drowsy",
+      "separation": 0.81,
+      "alert_median": 1.0494,
+      "drowsy_median": 2.1213
+    },
+    "frequency_mean": {
+      "auc_drowsy_vs_alert": 0.7362,
+      "direction": "higher when drowsy",
+      "separation": 0.7362,
+      "alert_median": -2.0253,
+      "drowsy_median": 20.8966
+    },
+    "amplitude_mean": {
+      "auc_drowsy_vs_alert": 0.3406,
+      "direction": "lower when drowsy",
+      "separation": 0.6594,
+      "alert_median": 0.1261,
+      "drowsy_median": -0.3502
+    },
+    "velocity_mean": {
+      "auc_drowsy_vs_alert": 0.2919,
+      "direction": "lower when drowsy",
+      "separation": 0.7081,
+      "alert_median": 0.1787,
+      "drowsy_median": -0.4447
+    }
+  },
+  "padding": {
+    "blink_slots": 259830,
+    "padded_slots": 211,
+    "padded_fraction": 0.000812,
+    "windows_entirely_padding": 0
+  },
+  "generated_at": "2026-09-18T14:18:32+00:00"
+}
