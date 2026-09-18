@@ -64,6 +64,11 @@
 7. PHAT HIEN KY THUAT,On dinh nguong,XONG,4/5 fold trung nhau,"Nguong khong doi theo tai xe = dang do trang thai chu khong phai do nguoi"
 7. PHAT HIEN KY THUAT,DIEM YEU da do duoc,GHI NHAN,recall 0.36 / FA 0.017,"Tren 116 phien: luat im lang qua 2/3 chuyen buon ngu. Logistic 0.55 recall / 0.052 FA - tot hon o trade-off nay"
 7. PHAT HIEN KY THUAT,Kiem tra ro ri du lieu,DAT,0 cua so trung,"train/test va giua cac fold deu 0 - check_integrity() chay moi lan"
+7. PHAT HIEN KY THUAT,Model hoc chuoi nhip mat (GRU),XONG,0.5325 vs luat 0.5095,"Thang luat tren 60 tai xe la. Dao nguoc mot phan ket luan 6 tai xe"
+7. PHAT HIEN KY THUAT,Vi sao GRU thang,GIA THUYET,thu tu blink,"Chi GRU doc duoc thu tu. GB/logistic/luat deu coi cua so la mot tui so"
+7. PHAT HIEN KY THUAT,GRU tra gia validation,XONG,~5200 vs 7400 dong,"Can tap validation roi tai xe de early-stop. Van thang du it du lieu hon"
+7. PHAT HIEN KY THUAT,Thi nghiem doi chung ResNet (HF),XONG,0.9979 -> 0.4900,"Train tren ddd (chia theo frame), test tren n7: rot ve muc doan mo. AUC 0.4974"
+7. PHAT HIEN KY THUAT,Ket luan tong,XONG,,"Khong phai luat vs hoc may. La dac trung do theo cai gi: chuan hoa theo baseline cua chinh tai xe thi chuyen duoc, khong thi hoc khuon mat"
 8. RUI RO,Trien khai len CarSky/VDP,CHUA BAT DAU,CAO,Luat 3.7 bat buoc nop len VDP. Chua co tai khoan/API key
 8. RUI RO,Docker chua cai tren may,CHAN DUONG,CAO,Khong build duoc container CarSky
 8. RUI RO,Sample project AEB test bench,CHUA CO,CAO,BTC cap rieng kem tutorial - can xin mentor

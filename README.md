@@ -117,29 +117,45 @@ into five subject-disjoint folds, so the split was made by someone else before
 I arrived.
 
 ```bash
-python -m guardian.opendata.temporal      # clones the release, writes docs/opendata/rldd_report.md
+python -m guardian.opendata.temporal      # clones the release, trains, writes docs/opendata/rldd_report.md
 ```
 
-Four predictors, identical protocol: fit on four folds, score on the fifth,
+The recurrent model needs `torch`; without it the other four predictors still
+run and the report simply omits that row.
+
+Five predictors, identical protocol: fit on four folds, score on the fifth,
 five times, never looking at the held-out drivers.
 
 | predictor | held-out macro-F1 | in-sample macro-F1 | overfit gap |
 |---|---:|---:|---:|
-| **rule** (4 thresholds) | **0.5095** | 0.5192 | **+0.0097** |
+| **GRU over the blink sequence** | **0.5325** | 0.7287 | +0.1962 |
+| rule (4 thresholds) | 0.5095 | 0.5192 | **+0.0097** |
 | gradient boosting, *same five statistics* | 0.5089 | 0.9997 | +0.4908 |
 | logistic regression, raw 30×4 window | 0.4729 | 0.5392 | +0.0663 |
 | majority class | 0.2685 | 0.3018 | +0.0333 |
 
-**What that actually says**, and it is not the flattering version. At sixty
-drivers the rule no longer *crushes* the fitted models — it ties the boosted
-one to within 0.0006. What survives is the second column: the boosted model
-reaches that tie by memorising its training drivers almost perfectly
-(in-sample 0.9997), while four cut points have essentially nothing to overfit
-with. The six-driver claim "rules beat learning" is better stated as **"rules
-match learning at a fraction of the fragility"** — a weaker claim, and one that
-sixty strangers actually support. Four of the five folds also select the
-*identical* cut points, which is its own evidence: a threshold that moves every
-fold is fitting drivers, not states.
+**What that actually says**, and it is not the flattering version — it is a
+partial reversal of this project's own headline. On six drivers, every learned
+model lost badly to the thresholds. On sixty, a one-layer GRU **beats** them,
+0.5325 against 0.5095, and does it while training on *less* data: it needs a
+validation set for early stopping, that set has to be driver-disjoint too, so
+it sees roughly three folds where boosting saw four. The margin is not huge,
+but the direction is the opposite of what the six-driver experiment concluded.
+
+The likely reason is the one thing the GRU has and nothing else here does:
+**the order of the blinks**. Boosting gets five summary statistics, logistic
+regression gets 120 unordered coefficients, the rule gets two numbers. Only the
+recurrent model can see that blinks are *lengthening* rather than merely long,
+and on this data that appears to be worth about two points of macro-F1.
+
+What survives from the original claim is the third column. Gradient boosting
+ties the rule on held-out data only by memorising its training drivers almost
+perfectly (in-sample 0.9997, gap +0.4908); the GRU's gap is +0.1962; four cut
+points have essentially nothing to overfit with, at +0.0097. So the honest
+restatement is **"thresholds are the most robust thing here, and no longer the
+most accurate"**. Four of the five folds also select *identical* cut points,
+which is its own evidence: a threshold that moves every fold is fitting
+drivers, not states.
 
 Collapsed to the two states the cabin engine really ships, on 116 held-out
 sessions, the picture is less comfortable and is reported anyway:
@@ -147,13 +163,15 @@ sessions, the picture is less comfortable and is reported anyway:
 | predictor | recall on drowsy | false-alarm rate on alert |
 |---|---:|---:|
 | rule | 0.36 | **0.017** |
+| GRU | 0.43 | 0.052 |
 | logistic regression | **0.55** | 0.052 |
 
-The rule sits at a quiet, insensitive operating point and logistic regression
-dominates it on that trade-off. Part of that is an objective mismatch — the cut
-points were chosen for three-class macro-F1, not for alarm recall — and part of
-it is simply the result: a macro-F1-tuned rule would stay silent through roughly
-two drowsy drives in three.
+The rule sits at the quietest, least sensitive operating point of anything here,
+and both learned models dominate it on that trade-off — same handful of false
+alarms, more drowsy drivers caught. Part of that is an objective mismatch — the
+cut points were chosen for three-class macro-F1, not for alarm recall — and part
+of it is simply the result: a macro-F1-tuned rule would stay silent through
+roughly two drowsy drives in three.
 
 Two limits that bound everything above. The front end here is dlib
 eye-aspect-ratio blink detection, **not** the MediaPipe blendshapes Guardian
@@ -164,6 +182,48 @@ subject-disjointness cannot be confirmed directly, because the arrays carry no
 participant id; what `check_integrity()` does confirm, every run, is its
 necessary consequence — **zero** windows shared between any fold's train and
 test side, and **zero** shared between two folds' test sets.
+
+### The control experiment: what happens without a driver-aware split
+
+The sixty-driver result above is only meaningful if the protocol is doing work.
+`guardian/opendata/image_model.py` shows what the same effort buys without it.
+
+The Hugging Face driver-drowsiness uploads ship **no participant id**, so their
+train/test splits are splits of *frames*: consecutive frames of one face,
+milliseconds apart, land on both sides. A ResNet-18 fine-tuned on 12,000 of
+those frames for three epochs scores, on that dataset's own test split:
+
+| split | n | balanced accuracy | AUC |
+|---|---:|---:|---:|
+| `ddd` test — random-frame split | 3,000 | **0.9979** | 0.9999 |
+| `n7` — a different upload, never trained on | 2,313 | **0.4900** | 0.4974 |
+
+99.8% becomes **chance**. Balanced accuracy falls 0.5079 and the AUC of 0.4974
+means the model's confidence carries no information at all about a face it has
+not met. Nothing was learned about drowsiness; what was learned was *these
+people, in this room, under this lighting*.
+
+```bash
+python -m guardian.opendata.image_model --epochs 3    # needs a GPU and Hub access
+```
+
+**Putting the two together** is the actual finding of this whole open-data
+effort, and it is not "rules beat neural networks":
+
+- Raw pixels, no driver-aware split → 0.998 in-dataset, **0.490 out** — a perfect
+  score that transfers nothing.
+- Per-driver-baselined blink statistics, strict subject-disjoint folds → **0.5325**
+  held-out for a GRU, 0.5095 for four thresholds, on sixty people none of the
+  predictors ever saw.
+
+The first number is higher and worthless; the second is lower and real. What
+separates them is not model capacity — the ResNet has ten thousand times the
+parameters of the GRU. It is what the features are measured *against*. Referred
+to a driver's own alert baseline, a signal describes a state and survives
+meeting a stranger. Referred to nothing, it describes a face.
+
+That, restated, is the design principle the cabin engine was built on, and it
+now has evidence on both sides of it.
 
 ---
 
@@ -366,7 +426,8 @@ The findings I'd defend in a review, each measured rather than asserted:
 ```
 guardian/
 ├── opendata/         ← runs standalone: thresholds vs public datasets
-│                     (frame-level: evaluate.py | 60-driver temporal: rldd.py + temporal.py)
+│                     (frame-level: evaluate.py | 60-driver temporal: rldd.py +
+│                      temporal.py + sequence_model.py | control: image_model.py)
 │   ├── sources.py      dataset registry (licence + provenance)
 │   ├── blendshapes.py  MediaPipe eye/jaw signals, no dataset coupling
 │   └── evaluate.py     distributions, ROC AUC, threshold verdict

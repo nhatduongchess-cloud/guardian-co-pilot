@@ -32,10 +32,17 @@ mediapipe>=0.10.20
 scikit-learn>=1.4
 joblib>=1.3
 
-# --- Deep-learning ablation (documented in the write-up, not shipped) -------
-# Only needed to reproduce the CNN experiment that we report as a failure.
+# --- Deep learning: the open-data models ------------------------------------
+# torch      : the recurrent model in guardian/opendata/sequence_model.py, and
+#              the original CNN ablation the write-up reports as a failure.
+#              OPTIONAL - without it `python -m guardian.opendata.temporal`
+#              still runs and simply omits that row from the report.
+# torchvision: only for guardian/opendata/image_model.py (the ResNet control
+#              experiment). That module also needs `datasets` and Hub access,
+#              so it does not run everywhere this repo does.
 torch>=2.2
 torchvision>=0.17
+datasets>=2.18
 
 # --- Development ------------------------------------------------------------
 pytest>=8.0

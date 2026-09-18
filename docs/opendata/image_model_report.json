@@ -1,0 +1,32 @@
+{
+  "trained_on": {
+    "repo_id": "akahana/Driver-Drowsiness-Dataset",
+    "licence": "NOT DECLARED by the uploader - treat as research-use only",
+    "provenance": "Hugging Face: akahana/Driver-Drowsiness-Dataset. The dataset card cites https://doi.org/10.1007/978-981-33-6893-4_6 . 41,793 colour face crops at 227x227, split 33,434 train / 8,359 test."
+  },
+  "protocol": "random_frame_split - the dataset ships no participant id, so frames of the same face appear in both train and test. NOT a cross-driver protocol and not comparable to rldd_report.md.",
+  "in_dataset": {
+    "name": "ddd test (random-frame split)",
+    "n": 3000,
+    "accuracy": 0.998,
+    "balanced_accuracy": 0.9979,
+    "drowsy_recall": 1.0,
+    "alert_recall": 0.9957,
+    "auc": 0.9999
+  },
+  "cross_dataset": {
+    "name": "n7 (never trained on)",
+    "n": 2313,
+    "accuracy": 0.5024,
+    "balanced_accuracy": 0.49,
+    "drowsy_recall": 0.5862,
+    "alert_recall": 0.3938,
+    "auc": 0.4974
+  },
+  "collapse": {
+    "balanced_accuracy_drop": -0.5079,
+    "verdict": "The weights do not transfer. Most of the in-dataset score was the model recognising sessions it had already seen, which is exactly the failure this project documented on six drivers - reproduced here with thousands of faces, because more faces without a driver-aware split does not fix it."
+  },
+  "epochs": 3,
+  "generated_at": "2026-09-18T14:47:26+00:00"
+}

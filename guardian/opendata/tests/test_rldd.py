@@ -364,6 +364,11 @@ def test_cross_validate_runs_and_reports_the_overfit_gap():
 
     report = temporal.cross_validate(folds, verbose=False)
     assert report.integrity["leak_free"] in (True, False)  # it ran
+    # These synthetic folds are independent draws, so no fold's training array
+    # contains another fold's test rows and no driver-disjoint validation group
+    # can be cut. The recurrent model must therefore be absent rather than
+    # trained on a validation set that leaks - dropping the row is the correct
+    # outcome, and this asserts it.
     assert set(report.aggregate) == {
         "rule",
         "boosted_on_stats",
@@ -374,3 +379,34 @@ def test_cross_validate_runs_and_reports_the_overfit_gap():
         assert 0.0 <= row["held_out_macro_f1"] <= 1.0
         assert "overfit_gap" in row
     assert "# Guardian's rules against sixty drivers" in report.to_markdown()
+
+
+def test_cross_validate_includes_the_recurrent_model_when_folds_are_linked():
+    pytest.importorskip("torch", reason="recurrent model is optional")
+    rng = np.random.default_rng(11)
+
+    def group(level):
+        return rng.normal(level, 0.3, size=(14, rldd.WINDOW_BLINKS, 4))
+
+    groups = [
+        (np.concatenate([group(0.0), group(4.0)]), np.array([ALERT] * 14 + [DROWSY] * 14))
+        for _ in range(3)
+    ]
+    folds = []
+    for k in range(3):
+        others = [g for i, g in enumerate(groups) if i != k]
+        folds.append(
+            Fold(
+                k + 1,
+                np.concatenate([g[0] for g in others]),
+                np.concatenate([g[1] for g in others]),
+                groups[k][0],
+                groups[k][1],
+            )
+        )
+
+    report = temporal.cross_validate(folds, verbose=False)
+    assert "gru_on_sequence" in report.aggregate
+    meta = report.folds[0]["sequence_training"]
+    assert meta["validation_fold"] != report.folds[0]["fold"]
+    assert meta["n_train"] + meta["n_validation"] == report.folds[0]["n_train"]

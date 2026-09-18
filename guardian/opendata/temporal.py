@@ -17,7 +17,7 @@ someone else before we arrived.
 
 WHAT IS COMPARED
 ----------------
-Three predictors, all scored the same way: fit on four folds, scored on the
+Four predictors, all scored the same way: fit on four folds, scored on the
 fifth, repeated five times, never once looking at the held-out drivers.
 
 1.  **Rule** - four thresholds on two blink statistics, in the same escalating
@@ -29,6 +29,12 @@ fifth, repeated five times, never once looking at the held-out drivers.
 3.  **Fitted model, more information** - logistic regression on the raw
     30x4 window, flattened. It sees everything the rule sees and the ordering
     besides.
+4.  **Fitted model that can actually use time** - a one-layer GRU over the
+    sequence (`sequence_model.py`). Everything above treats a window as a bag
+    of numbers; drowsiness is a trajectory. This is the predictor that can tell
+    the difference, and it pays for the privilege: it needs a validation set
+    for early stopping, that set has to be driver-disjoint too, so it trains on
+    roughly three folds where the others trained on four.
 
 A majority-class predictor fixes the floor.
 
@@ -412,6 +418,7 @@ class FoldResult:
     held_out: dict
     held_out_per_video: dict
     in_sample: dict
+    sequence_training: Optional[dict] = None
 
 
 @dataclass
@@ -515,18 +522,18 @@ class TemporalReport:
                 )
             lines += [
                 "",
-                "Read honestly, this table does not favour the rule. It sits at a",
-                "quiet, insensitive operating point - almost never wrong about an",
-                "alert driver, and silent through most of the drowsy ones - while",
-                "logistic regression catches substantially more drowsy sessions for a",
-                "few more false alarms, and dominates the rule on this particular",
-                "trade-off. Part of that is an objective mismatch worth naming: the",
-                "cut points were chosen to maximise three-class macro-F1, which is",
-                "not the alarm objective, so this table scores an operating point the",
-                "search never aimed at. Part of it is not an excuse - a rule tuned",
-                "for macro-F1 is the rule this repository would actually ship, and on",
-                "sixty strangers it would stay quiet through two drowsy drives in",
-                "three.",
+                "Read honestly, this table does not favour the rule. It sits at the",
+                "quietest, least sensitive operating point of anything here - almost",
+                "never wrong about an alert driver, and silent through most of the",
+                "drowsy ones - while both the recurrent model and logistic regression",
+                "catch more drowsy sessions for the same handful of false alarms, and",
+                "dominate it on this trade-off. Part of that is an objective mismatch",
+                "worth naming: the cut points were chosen to maximise three-class",
+                "macro-F1, which is not the alarm objective, so this table scores an",
+                "operating point the search never aimed at. Part of it is not an",
+                "excuse - a rule tuned for macro-F1 is the rule this repository would",
+                "actually ship, and on sixty strangers it would stay quiet through two",
+                "drowsy drives in three.",
             ]
 
         lines += [
@@ -590,6 +597,7 @@ def cross_validate(
     seed: int = 42,
     verbose: bool = True,
     boundaries: Optional[dict[int, Sequence[int]]] = None,
+    sequence: bool = True,
 ) -> TemporalReport:
     """The whole experiment: five folds in, one report out."""
     results: list[FoldResult] = []
@@ -614,6 +622,36 @@ def cross_validate(
 
         test_pred = _predict_all(models, rule, test_stats, fold.test_windows)
         train_pred = _predict_all(models, rule, train_stats, fold.train_windows)
+
+        # The recurrent model is optional: torch is a heavy dependency and every
+        # other predictor here runs without it, so its absence degrades the
+        # report rather than breaking it.
+        trained_sequence = None
+        if sequence:
+            from . import sequence_model
+
+            if sequence_model.available():
+                try:
+                    trained_sequence = sequence_model.train_fold(
+                        fold, folds, seed=seed, verbose=verbose
+                    )
+                except ValueError as exc:
+                    # The recurrent model needs a driver-disjoint validation
+                    # group, which only exists because each shipped training
+                    # array is the union of the other folds' test arrays. Folds
+                    # built some other way cannot supply one, and training
+                    # without it would select the model on rows it had already
+                    # memorised. Dropping the row is the correct outcome; a
+                    # number produced without that guarantee is not.
+                    if verbose:
+                        print(f"[temporal] skipping the recurrent model: {exc}")
+                else:
+                    test_pred["gru_on_sequence"] = trained_sequence.predict(fold.test_windows)
+                    train_pred["gru_on_sequence"] = trained_sequence.predict(
+                        fold.train_windows
+                    )
+            elif verbose:
+                print("[temporal] torch not installed - skipping the recurrent model")
 
         starts = boundaries.get(fold.index)
         per_video: dict[str, dict] = {}
@@ -640,6 +678,18 @@ def cross_validate(
                 held_out={k: _score(fold.test_labels, v) for k, v in test_pred.items()},
                 held_out_per_video=per_video,
                 in_sample={k: _score(fold.train_labels, v) for k, v in train_pred.items()},
+                sequence_training=(
+                    {
+                        "validation_fold": trained_sequence.validation_fold,
+                        "n_train": trained_sequence.n_train,
+                        "n_validation": trained_sequence.n_validation,
+                        "best_epoch": trained_sequence.best_epoch,
+                        "epochs_run": trained_sequence.epochs_run,
+                        "best_validation_macro_f1": trained_sequence.best_validation_macro_f1,
+                    }
+                    if trained_sequence is not None
+                    else None
+                ),
             )
         )
         if verbose:

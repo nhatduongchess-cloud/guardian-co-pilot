@@ -1,6 +1,6 @@
 # Guardian's rules against sixty drivers
 
-_Generated 2026-09-18T14:18:32+00:00._
+_Generated 2026-09-18T14:44:36+00:00._
 
 ## Dataset
 
@@ -33,6 +33,7 @@ for.
 | boosted_on_stats | 0.4968 | 0.5089 | 0.9997 | +0.4908 |
 | logistic_on_window | 0.4792 | 0.4729 | 0.5392 | +0.0663 |
 | majority | 0.3669 | 0.2685 | 0.3018 | +0.0333 |
+| gru_on_sequence | 0.523 | 0.5325 | 0.7287 | +0.1962 |
 
 ## Per session, which is what a co-pilot actually emits
 
@@ -48,6 +49,7 @@ held-out sessions in total, every driver unseen):
 | boosted_on_stats | 0.4483 | 0.4505 |
 | logistic_on_window | 0.5057 | 0.5139 |
 | majority | 0.3333 | 0.2639 |
+| gru_on_sequence | 0.5402 | 0.5292 |
 
 ## Collapsed to the two states Guardian actually ships
 
@@ -64,19 +66,20 @@ ignore the system.
 | boosted_on_stats | 22/58 | 0.3793 | 9 | 0.1552 |
 | logistic_on_window | 32/58 | 0.5517 | 3 | 0.0517 |
 | majority | 23/58 | 0.3966 | 23 | 0.3966 |
+| gru_on_sequence | 25/58 | 0.431 | 3 | 0.0517 |
 
-Read honestly, this table does not favour the rule. It sits at a
-quiet, insensitive operating point - almost never wrong about an
-alert driver, and silent through most of the drowsy ones - while
-logistic regression catches substantially more drowsy sessions for a
-few more false alarms, and dominates the rule on this particular
-trade-off. Part of that is an objective mismatch worth naming: the
-cut points were chosen to maximise three-class macro-F1, which is
-not the alarm objective, so this table scores an operating point the
-search never aimed at. Part of it is not an excuse - a rule tuned
-for macro-F1 is the rule this repository would actually ship, and on
-sixty strangers it would stay quiet through two drowsy drives in
-three.
+Read honestly, this table does not favour the rule. It sits at the
+quietest, least sensitive operating point of anything here - almost
+never wrong about an alert driver, and silent through most of the
+drowsy ones - while both the recurrent model and logistic regression
+catch more drowsy sessions for the same handful of false alarms, and
+dominate it on this trade-off. Part of that is an objective mismatch
+worth naming: the cut points were chosen to maximise three-class
+macro-F1, which is not the alarm objective, so this table scores an
+operating point the search never aimed at. Part of it is not an
+excuse - a rule tuned for macro-F1 is the rule this repository would
+actually ship, and on sixty strangers it would stay quiet through two
+drowsy drives in three.
 
 ## Which signal carries it
 
